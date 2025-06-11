@@ -9,17 +9,17 @@ public final class DynamoPerformer {
         dBase = new DynamoBase(n, w, r, q);
     }
 
+    @Override
+    public String toString() {
+        return dBase.toString();
+    }
+
     // конструктор через Builder
     private DynamoPerformer(Builder builder) {
         dBase = new DynamoBase(builder.n,
                                builder.w,
                                builder.r,
                                builder.q);
-    }
-
-    @Override
-    public String toString() {
-        return dBase.toString();
     }
 
     // паттерн Builder для удобного заполнения множества аргументов

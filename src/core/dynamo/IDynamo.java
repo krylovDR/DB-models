@@ -7,5 +7,5 @@ public interface IDynamo extends IDataStorage {
     public int readRequest(int id);         // запрос на чтение с узла id
 
     public double getAOI();                 // получение возраста информации по запросу на чтение
-    public double getAOI(int id);           // получение возрастра информации c узла id
+    public double getAOI(int id);           // получение возрастра информации узла id
 }

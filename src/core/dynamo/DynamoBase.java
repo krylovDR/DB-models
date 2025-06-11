@@ -10,22 +10,15 @@ public class DynamoBase implements IDynamo {
 
     private final ArrayList<Node> nodes;  // все узлы
 
-    // класс для описания отдельного узла
-    private static class Node {
-        private int id;         // номер узла
-        private int timeStamp;  // временная метка хранящегося обновления
 
-        private Node(int id) {
-            this.id = id;
-            timeStamp = 0;
-        }
-
-        @Override
-        public String toString() {
-            return "id: " + id + ", timeStamp: " + timeStamp;
-        }
-    }
-
+    /**
+     * Конструктор РСХД Динамо-типа.
+     *
+     * @param n общее количество узлов,
+     * @param w количество узлов в кворуме записи
+     * @param r количество узлов в кворуме чтения
+     * @param q вероятность успешной записи на отдельный узел
+     */
     public DynamoBase (int n, int w, int r, double q) {
         if (n <= 0) throw new RuntimeException("Error: expected n > 0");
         if (w <= 0 || w > n) throw new RuntimeException("Error: expected 0 < w <= n");
@@ -43,11 +36,27 @@ public class DynamoBase implements IDynamo {
         }
     }
 
-    @Override
-    public void doWrite() {}
 
+    /**
+     * Однократное моделирование всего процесса записи на узлы кворума W.
+     */
     @Override
-    public int doRead() {return 0;}
+    public void doWrite() {
+
+    }
+
+
+    /**
+     * Однократное моделирование всего процесса чтения с узлов кворума R.
+     *
+     * @return {@code int} - самая свежая временная метка из множества узлов
+     *         кворума чтения
+     */
+    @Override
+    public int doRead() {
+        return 0;
+    }
+
 
     /**
      * Отправляет запрос на запись в узел id.
@@ -57,16 +66,45 @@ public class DynamoBase implements IDynamo {
      *         {@code false} - записи не было
      */
     @Override
-    public boolean writeRequest(int id) {return false;}
+    public boolean writeRequest(int id) {
+        return false;
+    }
 
-    @Override
-    public int readRequest(int id) {return 0;}
 
+    /**
+     * Отправляет запрос на чтение в узел id.
+     *
+     * @param id номер узла, куда отправится запрос
+     * @return {@code int} - временная метка данных на узле id
+     */
     @Override
-    public double getAOI() {return 0.0;}
+    public int readRequest(int id) {
+        return 0;
+    }
 
+
+    /**
+     * Получение возраста информации по запросу на чтение.
+     *
+     * @return {@code double} - возраст информации
+     */
     @Override
-    public double getAOI(int id) {return 0.0;}
+    public double getAOI() {
+        return 0.0;
+    }
+
+
+    /**
+     * Получение возраста информации узла id.
+     *
+     * @param id номер узла
+     * @return {@code double} - возраст информации на узле id
+     */
+    @Override
+    public double getAOI(int id) {
+        return 0.0;
+    }
+
 
     @Override
     public String toString() {
@@ -80,5 +118,22 @@ public class DynamoBase implements IDynamo {
         nodes.forEach(value -> sb.append(value.toString() + "\n"));
 
         return sb.toString();
+    }
+
+
+    // класс для описания отдельного узла
+    private static class Node {
+        private int id;         // номер узла
+        private int timeStamp;  // временная метка хранящегося обновления
+
+        private Node(int id) {
+            this.id = id;
+            timeStamp = 0;
+        }
+
+        @Override
+        public String toString() {
+            return "id: " + id + ", timeStamp: " + timeStamp;
+        }
     }
 }

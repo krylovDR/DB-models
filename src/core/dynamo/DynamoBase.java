@@ -10,6 +10,10 @@ public class DynamoBase implements IDynamo {
 
     private final ArrayList<Node> nodes;  // все узлы
 
+    private int actualTimeStamp;    // временная метка акутальной версии данных в системе
+    private int verProfit;          // на сколько успешных записей было больше, чем w
+    private int curSlot;            // номер текущего слота в системе
+
 
     /**
      * Конструктор РСХД Динамо-типа.
@@ -34,15 +38,23 @@ public class DynamoBase implements IDynamo {
         for (int i = 0; i < n; i++) {
             nodes.add(new Node(i));
         }
+
+        actualTimeStamp = 0;
+        verProfit = 0;
+        curSlot = 0;
     }
 
 
     /**
-     * Однократное моделирование всего процесса записи на узлы кворума W.
+     * Однократное моделирование всего процесса записи на узлы кворума W внутри слота.
      */
     @Override
     public void doWrite() {
-
+        for (int i = 0; i < n; i++) {
+            writeRequest(i);
+        }
+        curSlot++;
+        if (isUpdateComplete()) actualTimeStamp = curSlot;  // временная метка текущего обновления
     }
 
 
@@ -67,6 +79,10 @@ public class DynamoBase implements IDynamo {
      */
     @Override
     public boolean writeRequest(int id) {
+        if (q >= Math.random()) {
+            nodes.get(id).timeStamp = actualTimeStamp;
+            return true;
+        }
         return false;
     }
 
@@ -79,7 +95,7 @@ public class DynamoBase implements IDynamo {
      */
     @Override
     public int readRequest(int id) {
-        return 0;
+        return nodes.get(id).timeStamp;
     }
 
 
@@ -106,6 +122,25 @@ public class DynamoBase implements IDynamo {
     }
 
 
+    /**
+     * Опредеяет записано ли обновление на w и более узлов системы.
+     *
+     * @return {@code true} - обновление записано на w и более узлов,
+     *         {@code false} - менее w узлов обновилось
+     */
+    public boolean isUpdateComplete() {
+        int updated = 0;
+
+        for (Node node : nodes) {
+            if (node.timeStamp == actualTimeStamp) updated++;
+        }
+        verProfit = updated - w;
+
+        if (updated >= w) return true;
+        return false;
+    }
+
+
     @Override
     public String toString() {
         var sb = new StringBuilder("==== DynamoBase State: ====\n");
@@ -113,6 +148,10 @@ public class DynamoBase implements IDynamo {
         sb.append("w = " + w + ", ");
         sb.append("r = " + r + ", ");
         sb.append("q = " + q + "]");
+
+        sb.append("\n\nActual timestamp: " + actualTimeStamp);
+        sb.append("\nverProfit: " + verProfit);
+        sb.append("\nCurrent Slot: " + curSlot);
 
         sb.append("\n\n==== Nodes: ====\n");
         nodes.forEach(value -> sb.append(value.toString() + "\n"));

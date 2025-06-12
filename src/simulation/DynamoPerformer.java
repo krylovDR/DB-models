@@ -9,6 +9,12 @@ public final class DynamoPerformer {
         dBase = new DynamoBase(n, w, r, q);
     }
 
+    public void simulate(int numSlots) {
+        for (int i = 0; i < numSlots; i++) {
+            dBase.doWrite();
+        }
+    }
+
     @Override
     public String toString() {
         return dBase.toString();

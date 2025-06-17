@@ -13,6 +13,7 @@ public final class DynamoPerformer {
         for (int i = 0; i < numSlots; i++) {
             dBase.doWrite();
         }
+        System.out.println("doRead(): " + dBase.doRead());
     }
 
     @Override

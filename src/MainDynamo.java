@@ -3,7 +3,7 @@ import simulation.DynamoPerformer;
 public class MainDynamo {
     
     public static void main(String[] args) {
-        var sim = new DynamoPerformer(10, 5, 5, 0.9);
+        var sim = new DynamoPerformer(10, 3, 5, 0.3);
         sim.simulate(5);
         print(sim);
     }

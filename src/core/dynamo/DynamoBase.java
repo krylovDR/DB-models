@@ -1,6 +1,7 @@
 package core.dynamo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class DynamoBase implements IDynamo {
     private int n;      // количество узлов в системе
@@ -66,10 +67,21 @@ public class DynamoBase implements IDynamo {
      */
     @Override
     public int doRead() {
-        return 0;
+        var mixedID = new ArrayList<Integer>(n);
+        for (int i = 0; i < n; i++) {
+            mixedID.add(i);
+        }
+        Collections.shuffle(mixedID);
+
+        int max = 0;
+        for (int i = 0; i < r; i++) {
+            int curTS = readRequest(mixedID.get(i));
+            if (curTS > max) max = curTS;
+        }
+        return max;
     }
 
-
+  
     /**
      * Отправляет запрос на запись в узел id.
      *

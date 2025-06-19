@@ -3,23 +3,61 @@ package simulation;
 import core.dynamo.DynamoBase;
 
 public final class DynamoPerformer {
-    private DynamoBase dBase;
+    private DynamoBase dBase;   // экземпляр Dynamo-РСХД
+    private double avgAoI;      // средний возраст информации в системе
 
+    /**
+     * Конструктор для симуляции.
+     * 
+     * @param n общее количество узлов,
+     * @param w количество узлов в кворуме записи
+     * @param r количество узлов в кворуме чтения
+     * @param q вероятность успешной записи на отдельный узел
+     */
     public DynamoPerformer(int n, int w, int r, double q) {
         dBase = new DynamoBase(n, w, r, q);
+        avgAoI = 0.0;
     }
 
-    public void simulate(int numSlots) {
-        for (int i = 0; i < numSlots; i++) {
+
+    /**
+     * Метод для симуляции работы системы по слотам.
+     *
+     * @param numSlots количество слотов симуляции
+     * @param readPeriod периодичность операции чтения в системе
+     */
+    public void simulate(int numSlots, int readPeriod) {
+        int numExp = 0;
+
+        for (int curSlot = 0; curSlot < numSlots; curSlot++) {
             dBase.doWrite();
+            if (curSlot % readPeriod == 0) {
+                avgAoI += curSlot - dBase.doRead();
+                numExp++;
+            }
+            dBase.nextSlot();
         }
-        System.out.println("doRead(): " + dBase.doRead());
+        avgAoI = avgAoI / numExp;
+    }
+
+
+    /**
+     * Получение среднего возраста информации в системе
+     * 
+     * @return {@code double} - средний возраст информации (в слотах)
+     */
+    public double getAvgAOI() {
+        return avgAoI;
     }
 
     @Override
     public String toString() {
         return dBase.toString();
     }
+
+
+    // ============================================================================================
+
 
     // конструктор через Builder
     private DynamoPerformer(Builder builder) {

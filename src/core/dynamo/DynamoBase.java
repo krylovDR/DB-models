@@ -54,6 +54,30 @@ public class DynamoBase implements IDynamo {
         for (int i = 0; i < n; i++) {
             writeRequest(i);
         }
+    }
+
+
+    /**
+     * Отправляет запрос на запись в узел id.
+     *
+     * @param id номер узла, куда отправится запрос
+     * @return {@code true} - запись прошла успешно,
+     *         {@code false} - записи не было
+     */
+    @Override
+    public boolean writeRequest(int id) {
+        if (q >= Math.random()) {
+            nodes.get(id).timeStamp = actualTimeStamp;
+            return true;
+        }
+        return false;
+    }
+    
+
+    /**
+     * Метод перехода к следующему слоту с проверками состояния системы.
+     */
+    public void nextSlot() {
         curSlot++;
         if (isUpdateComplete()) actualTimeStamp = curSlot;  // временная метка текущего обновления
     }
@@ -81,23 +105,6 @@ public class DynamoBase implements IDynamo {
         return max;
     }
 
-  
-    /**
-     * Отправляет запрос на запись в узел id.
-     *
-     * @param id номер узла, куда отправится запрос
-     * @return {@code true} - запись прошла успешно,
-     *         {@code false} - записи не было
-     */
-    @Override
-    public boolean writeRequest(int id) {
-        if (q >= Math.random()) {
-            nodes.get(id).timeStamp = actualTimeStamp;
-            return true;
-        }
-        return false;
-    }
-
 
     /**
      * Отправляет запрос на чтение в узел id.
@@ -112,25 +119,14 @@ public class DynamoBase implements IDynamo {
 
 
     /**
-     * Получение возраста информации по запросу на чтение.
-     *
-     * @return {@code double} - возраст информации
-     */
-    @Override
-    public double getAOI() {
-        return 0.0;
-    }
-
-
-    /**
-     * Получение возраста информации узла id.
+     * Получение возраста информации узла id по запросу.
      *
      * @param id номер узла
      * @return {@code double} - возраст информации на узле id
      */
     @Override
     public double getAOI(int id) {
-        return 0.0;
+        return curSlot - nodes.get(id).timeStamp;
     }
 
 
@@ -150,6 +146,10 @@ public class DynamoBase implements IDynamo {
 
         if (updated >= w) return true;
         return false;
+    }
+
+    public int getVerProfit() {
+        return verProfit;
     }
 
 

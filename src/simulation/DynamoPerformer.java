@@ -1,10 +1,16 @@
 package simulation;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import core.dynamo.DynamoBase;
 
 public final class DynamoPerformer {
-    private DynamoBase dBase;   // экземпляр Dynamo-РСХД
-    private double avgAoI;      // средний возраст информации в системе
+    private DynamoBase dBase;               // экземпляр Dynamo-РСХД
+
+    private double avgAoI;                  // средний возраст информации в системе
+    private List<Object> verProfitList;     // List для verProfit
+    private List<Object> slots;             // List для номеров слотов
 
     /**
      * Конструктор для симуляции.
@@ -16,7 +22,10 @@ public final class DynamoPerformer {
      */
     public DynamoPerformer(int n, int w, int r, double q) {
         dBase = new DynamoBase(n, w, r, q);
+
         avgAoI = 0.0;
+        verProfitList = new LinkedList<>();
+        slots = new LinkedList<>();
     }
 
 
@@ -35,9 +44,32 @@ public final class DynamoPerformer {
                 avgAoI += curSlot - dBase.doRead();
                 numExp++;
             }
+            verProfitList.add(dBase.getVerProfit());    // подсчёт verProfit в List
+            slots.add(curSlot);                         // подсчёт слотов в List
+            
             dBase.nextSlot();
         }
         avgAoI = avgAoI / numExp;
+    }
+
+
+    /**
+     * Получение списка verProfit
+     * 
+     * @return {@code List<Integer>} - verProfit (в слотах)
+     */
+    public List<Object> getVerProfitList() {
+        return verProfitList;
+    }
+
+
+    /**
+     * Получение номеров слотов в виде List
+     * 
+     * @return {@code List<Integer>} - список номеров слотов
+     */
+    public List<Object> getSlotsList() {
+        return slots;
     }
 
 

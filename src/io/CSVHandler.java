@@ -15,12 +15,10 @@ public class CSVHandler {
      */
     public static void createCSV(String filename, List<Object> values) {
         try (CSVWriter writer = new CSVWriter(new FileWriter(filename + ".csv"))) {
-            writer.writeNext(new String[] {"values"});  // заголовок
-
             for (Object value : values) {
                 writer.writeNext(new String[] {value.toString()});
             }
-
+            
         } catch (IOException e) {
             e.printStackTrace();
         }

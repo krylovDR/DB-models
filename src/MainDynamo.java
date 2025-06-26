@@ -11,8 +11,8 @@ public class MainDynamo {
     public static void main(String[] args) {
         int n = 100;        // количество узлов в системе
         int w = 25;         // количество узлов в кворуме записи
-        int r = 1;          // количество узлов в кворуме чтения
-        double q = 0.8;     // вероятность успешной записи
+        int r = 5;          // количество узлов в кворуме чтения
+        double q = 0.3;     // вероятность успешной записи
 
         List<Object> valuesX = new LinkedList<>();  // для построения графиков, ось X
         List<Object> valuesY = new LinkedList<>();  // для построения графиков, ось Y

@@ -2,6 +2,7 @@
 import java.util.LinkedList;
 import java.util.List;
 
+import graphics.FigureSettings;
 import graphics.LinearFigure;
 import io.CSVHandler;
 import simulation.DynamoPerformer;
@@ -29,6 +30,7 @@ public class MainDynamo {
         CSVHandler.createCSV("outX", valuesX);
         CSVHandler.createCSV("outY", valuesY);
 
+        FigureSettings settings = new FigureSettings(3);
         LinearFigure.plot("outX", "outY");
         
     }

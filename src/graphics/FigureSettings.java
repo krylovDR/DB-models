@@ -2,10 +2,10 @@ package graphics;
 
 import com.fasterxml.jackson.*;
 
-public class JSONHandler {
+public class FigureSettings {
     private final String path = "src\\graphics\\settings.json";
 
-    public JSONHandler() {
+    public FigureSettings() {
         
     }
 

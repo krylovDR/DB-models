@@ -9,9 +9,9 @@ import simulation.DynamoPerformer;
 public class MainDynamo {
     
     public static void main(String[] args) {
-        int n = 100;        // количество узлов в системе
+        int n = 50;        // количество узлов в системе
         int w = 25;         // количество узлов в кворуме записи
-        int r = 5;          // количество узлов в кворуме чтения
+        int r = 4;          // количество узлов в кворуме чтения
         double q = 0.3;     // вероятность успешной записи
 
         List<Object> valuesX = new LinkedList<>();  // для построения графиков, ось X

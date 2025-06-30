@@ -36,6 +36,9 @@ public final class DynamoPerformer {
      * @param readPeriod периодичность операции чтения в системе
      */
     public void simulate(int numSlots, int readPeriod) {
+        if (numSlots < 1) throw new RuntimeException("numSlots must be >0");
+        if (readPeriod < 1) throw new RuntimeException("readPeriod must be >0");
+
         int numExp = 0;
 
         for (int curSlot = 0; curSlot < numSlots; curSlot++) {
@@ -56,7 +59,7 @@ public final class DynamoPerformer {
     /**
      * Получение списка verProfit
      * 
-     * @return {@code List<Integer>} - verProfit (в слотах)
+     * @return {@code List<Object>} - verProfit (в слотах)
      */
     public List<Object> getVerProfitList() {
         return verProfitList;
@@ -66,7 +69,7 @@ public final class DynamoPerformer {
     /**
      * Получение номеров слотов в виде List
      * 
-     * @return {@code List<Integer>} - список номеров слотов
+     * @return {@code List<Object>} - список номеров слотов
      */
     public List<Object> getSlotsList() {
         return slots;

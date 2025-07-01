@@ -9,6 +9,7 @@ public final class DynamoPerformer {
     private DynamoBase dBase;               // экземпляр Dynamo-РСХД
 
     private double avgAoI;                  // средний возраст информации в системе
+    private double avgVersionAge;           // среднее время жизни обновления
     private List<Object> verProfitList;     // List для verProfit
     private List<Object> slots;             // List для номеров слотов
 
@@ -24,6 +25,7 @@ public final class DynamoPerformer {
         dBase = new DynamoBase(n, w, r, q);
 
         avgAoI = 0.0;
+        avgVersionAge = 0.0;
         verProfitList = new LinkedList<>();
         slots = new LinkedList<>();
     }
@@ -53,6 +55,7 @@ public final class DynamoPerformer {
             dBase.nextSlot();
         }
         avgAoI = avgAoI / numExp;
+        avgVersionAge = numSlots / dBase.getActualVersion();
     }
 
 
@@ -83,6 +86,16 @@ public final class DynamoPerformer {
      */
     public double getAvgAOI() {
         return avgAoI;
+    }
+
+
+    /**
+     * Получение среднего времени жизни обновления в системе
+     * 
+     * @return {@code double} - среднее время жизни обновления (в слотах)
+     */
+    public double getAvgVersionAge() {
+        return avgVersionAge;
     }
 
     @Override

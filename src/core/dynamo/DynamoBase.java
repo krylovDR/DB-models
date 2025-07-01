@@ -13,6 +13,7 @@ public class DynamoBase implements IDynamo {
 
     private int actualTimeStamp;    // временная метка акутальной версии данных в системе
     private int verProfit;          // на сколько успешных записей было больше, чем w
+    private int actualVersion;      // актуальный номер обновления (для расчёта среднего времени жизни обновления)
     private int curSlot;            // номер текущего слота в системе
 
 
@@ -42,6 +43,7 @@ public class DynamoBase implements IDynamo {
 
         actualTimeStamp = 0;
         verProfit = 0;
+        actualVersion = 0;
         curSlot = 0;
     }
 
@@ -79,7 +81,10 @@ public class DynamoBase implements IDynamo {
      */
     public void nextSlot() {
         curSlot++;
-        if (isUpdateComplete()) actualTimeStamp = curSlot;  // временная метка текущего обновления
+        if (isUpdateComplete()) {
+            actualTimeStamp = curSlot;  // временная метка текущего обновления
+            actualVersion++;
+        }
     }
 
 
@@ -152,6 +157,14 @@ public class DynamoBase implements IDynamo {
         return verProfit;
     }
 
+    public int getActualVersion() {
+        return actualVersion;
+    }
+
+    public int getCurSlot() {
+        return curSlot;
+    }
+
 
     @Override
     public String toString() {
@@ -163,6 +176,7 @@ public class DynamoBase implements IDynamo {
 
         sb.append("\n\nActual timestamp: " + actualTimeStamp);
         sb.append("\nverProfit: " + verProfit);
+        sb.append("\nactualVersion: " + actualVersion);
         sb.append("\nCurrent Slot: " + curSlot);
 
         sb.append("\n\n==== Nodes: ====\n");

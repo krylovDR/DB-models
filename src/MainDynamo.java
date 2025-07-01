@@ -13,13 +13,14 @@ public class MainDynamo {
      * W - увеличение w
      * verProfit - график verProfit в зависимости от w
      */
-    public static final String mode = "verProfit";
+    public static final String mode = "W";
     
     public static void main(String[] args) {
-        int n = 50;        // количество узлов в системе
+        int n = 100;         // количество узлов в системе
         int w = 25;         // количество узлов в кворуме записи
         int r = 5;          // количество узлов в кворуме чтения
-        double q = 0.4;    // вероятность успешной записи
+        double q = 0.01;     // вероятность успешной записи
+        int c = 100;        // количество слотов задержки инициализации нового обновления
 
         switch (mode) {
 
@@ -32,7 +33,7 @@ public class MainDynamo {
 
                 // увеличение r от 1 до n
                 for (r = 1; r <= n; r++) {
-                    var sim = new DynamoPerformer(n, w, r, q);
+                    var sim = new DynamoPerformer(n, w, r, q, c);
                     sim.simulate(100_000, 1);
 
                     valuesR.add(r);
@@ -54,7 +55,7 @@ public class MainDynamo {
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
-                    var sim = new DynamoPerformer(n, w, r, q);
+                    var sim = new DynamoPerformer(n, w, r, q, c);
                     sim.simulate(100_000, 1);
 
                     valuesW.add(w);
@@ -77,7 +78,7 @@ public class MainDynamo {
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
-                    var sim = new DynamoPerformer(n, w, r, q);
+                    var sim = new DynamoPerformer(n, w, r, q, c);
                     sim.simulate(100_000, 1);
 
                     valuesW.add(w);

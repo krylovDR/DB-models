@@ -12,13 +12,14 @@ public final class DynamoPerformer {
     /**
      * Конструктор для симуляции.
      * 
-     * @param n общее количество узлов,
-     * @param w количество узлов в кворуме записи
-     * @param r количество узлов в кворуме чтения
-     * @param q вероятность успешной записи на отдельный узел
+     * @param n - общее количество узлов,
+     * @param w - количество узлов в кворуме записи
+     * @param r - количество узлов в кворуме чтения
+     * @param q - вероятность успешной записи на отдельный узел
+     * @param c - количество слотов задержки инициализации нового обновления
      */
-    public DynamoPerformer(int n, int w, int r, double q) {
-        dBase = new DynamoBase(n, w, r, q);
+    public DynamoPerformer(int n, int w, int r, double q, int c) {
+        dBase = new DynamoBase(n, w, r, q, c);
 
         avgAoI = 0.0;
         avgVersionAge = 0.0;
@@ -53,7 +54,6 @@ public final class DynamoPerformer {
         avgVerProfit = avgVerProfit / dBase.getActualVersion();
         
     }
-
 
 
     /**
@@ -98,7 +98,8 @@ public final class DynamoPerformer {
         dBase = new DynamoBase(builder.n,
                                builder.w,
                                builder.r,
-                               builder.q);
+                               builder.q,
+                               builder.c);
     }
 
     // паттерн Builder для удобного заполнения множества аргументов
@@ -107,6 +108,7 @@ public final class DynamoPerformer {
         private int w;
         private int r;
         private double q;
+        private int c;
 
         public Builder setN(int n) {
             this.n = n;
@@ -125,6 +127,11 @@ public final class DynamoPerformer {
 
         public Builder setQ(double q) {
             this.q = q;
+            return this;
+        }
+
+        public Builder setC(int c) {
+            this.c = c;
             return this;
         }
 

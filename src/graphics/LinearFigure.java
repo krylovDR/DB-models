@@ -8,17 +8,20 @@ public class LinearFigure {
 
     /**
      * Метод построения графиков.
-     * @param xValuesFile - название файла с данными для оси X
-     * @param yValuesFile - название файла с данными для оси Y
+     * @param files - названия файлов с данными графиков (без .csv)
      */
-    public static void plot(String xValuesFile, String yValuesFile) {
+    public static void plot(String... files) {
         try {
+            String[] commands = new String[files.length + 2];
+            commands[0] = "python";
+            commands[1] = "src\\\\graphics\\\\GraphicCreator.py";
+
+            for (int i = 0; i < files.length; i++) {
+                commands[i + 2] = files[i] + ".csv";
+            }
+
             // создание процесса
-            ProcessBuilder processBuilder = new ProcessBuilder(
-                    "python",
-                    "src\\graphics\\GraphicCreator.py",
-                    xValuesFile + ".csv",
-                    yValuesFile + ".csv");
+            ProcessBuilder processBuilder = new ProcessBuilder(commands);
             Process process = processBuilder.start();
 
             checkOutput(process);

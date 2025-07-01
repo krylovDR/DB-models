@@ -83,7 +83,7 @@ public class DynamoBase implements IDynamo {
         curSlot++;
         if (isUpdateComplete()) {
             actualTimeStamp = curSlot;  // временная метка текущего обновления
-            actualVersion++;
+            actualVersion++;            // номер текущего обновления
         }
     }
 
@@ -143,13 +143,16 @@ public class DynamoBase implements IDynamo {
      */
     public boolean isUpdateComplete() {
         int updated = 0;
+        verProfit = 0;
 
         for (Node node : nodes) {
             if (node.timeStamp == actualTimeStamp) updated++;
         }
-        verProfit = updated - w;
 
-        if (updated >= w) return true;
+        if (updated >= w) {
+            verProfit = updated - w;
+            return true;
+        }
         return false;
     }
 

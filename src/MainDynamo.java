@@ -2,21 +2,24 @@
 import java.util.LinkedList;
 import java.util.List;
 
-import graphics.FigureSettings;
 import graphics.LinearFigure;
 import io.CSVHandler;
 import simulation.DynamoPerformer;
 
 public class MainDynamo {
 
-    public static final String mode = "R";  // R - увеличение r
-                                            // W - увеличение w
+    /**
+     * R - увеличение r
+     * W - увеличение w
+     * verProfit - график verProfit в зависимости от w
+     */
+    public static final String mode = "verProfit";
     
     public static void main(String[] args) {
-        int n = 50;         // количество узлов в системе
+        int n = 50;        // количество узлов в системе
         int w = 25;         // количество узлов в кворуме записи
-        int r = 25;         // количество узлов в кворуме чтения
-        double q = 0.1;     // вероятность успешной записи
+        int r = 5;          // количество узлов в кворуме чтения
+        double q = 0.4;    // вероятность успешной записи
 
         switch (mode) {
 
@@ -27,7 +30,7 @@ public class MainDynamo {
                 List<Object> valuesR = new LinkedList<>();          // для построения графиков, ось X
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
 
-                // увеличение w от 1 до n
+                // увеличение r от 1 до n
                 for (r = 1; r <= n; r++) {
                     var sim = new DynamoPerformer(n, w, r, q);
                     sim.simulate(100_000, 1);
@@ -37,9 +40,9 @@ public class MainDynamo {
                     print("r = " + r + ", avg AoI: " + sim.getAvgAOI());
                 }
                 CSVHandler.createCSV("outX", valuesR);
-                CSVHandler.createCSV("outY", valuesAoI);
+                CSVHandler.createCSV("outY1", valuesAoI);
 
-                LinearFigure.plot("outX", "outY");
+                LinearFigure.plot("outX", "outY1");
             }
 
             /**
@@ -62,6 +65,32 @@ public class MainDynamo {
                 CSVHandler.createCSV("outY", valuesAoI);
 
                 LinearFigure.plot("outX", "outY");
+            }
+
+            /**
+             * Графики средней избыточности verProfit и среднего возраста информации в зависимости от w
+             */
+            case "verProfit" -> {
+                List<Object> valuesW = new LinkedList<>();          // для построения графиков, ось X
+                List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
+                List<Object> valuesVerProfit = new LinkedList<>();  // для построения графика verProfit, ось Y
+
+                // увеличение w от 1 до n
+                for (w = 1; w <= n; w++) {
+                    var sim = new DynamoPerformer(n, w, r, q);
+                    sim.simulate(100_000, 1);
+
+                    valuesW.add(w);
+                    valuesAoI.add(sim.getAvgAOI());
+                    valuesVerProfit.add(sim.getAvgVerProfit());
+                    print("w = " + w + ", avg AoI: " + sim.getAvgAOI()
+                            + ", avg verProfit: " + sim.getAvgVerProfit());
+                }
+                CSVHandler.createCSV("outX", valuesW);
+                CSVHandler.createCSV("outY", valuesAoI);
+                CSVHandler.createCSV("verProfit", valuesVerProfit);
+
+                LinearFigure.plot("outX", "outY", "verProfit");
             }
         }
         

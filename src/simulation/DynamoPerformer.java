@@ -1,8 +1,5 @@
 package simulation;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import core.dynamo.DynamoBase;
 
 public final class DynamoPerformer {
@@ -10,8 +7,7 @@ public final class DynamoPerformer {
 
     private double avgAoI;                  // средний возраст информации в системе
     private double avgVersionAge;           // среднее время жизни обновления
-    private List<Object> verProfitList;     // List для verProfit
-    private List<Object> slots;             // List для номеров слотов
+    private double avgVerProfit;            // средняя избыточность обновлённых узлов
 
     /**
      * Конструктор для симуляции.
@@ -26,8 +22,7 @@ public final class DynamoPerformer {
 
         avgAoI = 0.0;
         avgVersionAge = 0.0;
-        verProfitList = new LinkedList<>();
-        slots = new LinkedList<>();
+        avgVerProfit = 0.0;
     }
 
 
@@ -46,37 +41,19 @@ public final class DynamoPerformer {
         for (int curSlot = 0; curSlot < numSlots; curSlot++) {
             dBase.doWrite();
             if (curSlot % readPeriod == 0) {
-                avgAoI += curSlot - dBase.doRead();
+                avgAoI += curSlot - dBase.doRead();     // подсчёт возраста информации
                 numExp++;
             }
-            verProfitList.add(dBase.getVerProfit());    // подсчёт verProfit в List
-            slots.add(curSlot);                         // подсчёт слотов в List
+            avgVerProfit = avgVerProfit + dBase.getVerProfit();    // подсчёт среднего verProfit
             
             dBase.nextSlot();
         }
         avgAoI = avgAoI / numExp;
         avgVersionAge = numSlots / dBase.getActualVersion();
+        avgVerProfit = avgVerProfit / dBase.getActualVersion();
+        
     }
 
-
-    /**
-     * Получение списка verProfit
-     * 
-     * @return {@code List<Object>} - verProfit (в слотах)
-     */
-    public List<Object> getVerProfitList() {
-        return verProfitList;
-    }
-
-
-    /**
-     * Получение номеров слотов в виде List
-     * 
-     * @return {@code List<Object>} - список номеров слотов
-     */
-    public List<Object> getSlotsList() {
-        return slots;
-    }
 
 
     /**
@@ -96,6 +73,15 @@ public final class DynamoPerformer {
      */
     public double getAvgVersionAge() {
         return avgVersionAge;
+    }
+
+
+    /**
+     * Получение среднее значение избыточности обновлённых узлов после заврешения обновления.
+     * @return {@code double} - среднее значение избыточности обновлённых узлов (в слотах)
+     */
+    public double getAvgVerProfit() {
+        return avgVerProfit;
     }
 
     @Override

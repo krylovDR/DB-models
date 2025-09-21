@@ -1,24 +1,12 @@
 {
-  "title" : "title",
-  "axis_x_name" : "values X",
-  "axis_y_name" : "values Y",
+  "title" : "График среднего возраста информации при увеличении w",
+  "axis_x_name" : "w",
+  "axis_y_name" : "AoI",
   "graphics" : [ {
-    "graphic_name" : "name",
-    "color" : "color",
-    "style" : "line",
-    "marker_style" : "dot",
-    "dot_size" : 2
-  }, {
-    "graphic_name" : "name",
-    "color" : "color",
-    "style" : "line",
-    "marker_style" : "dot",
-    "dot_size" : 2
-  }, {
-    "graphic_name" : "name",
-    "color" : "color",
-    "style" : "line",
-    "marker_style" : "dot",
-    "dot_size" : 2
+    "graphic_name" : "r = 5",
+    "color" : "black",
+    "style" : "default",
+    "marker_style" : "default",
+    "dot_size" : 0
   } ]
 }

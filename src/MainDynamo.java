@@ -2,6 +2,7 @@
 import java.util.LinkedList;
 import java.util.List;
 
+import graphics.FigureSettings;
 import graphics.LinearFigure;
 import io.CSVHandler;
 import simulation.DynamoPerformer;
@@ -16,11 +17,11 @@ public class MainDynamo {
     public static final String mode = "W";
     
     public static void main(String[] args) {
-        int n = 100;         // количество узлов в системе
-        int w = 25;         // количество узлов в кворуме записи
-        int r = 5;          // количество узлов в кворуме чтения
-        double q = 0.01;     // вероятность успешной записи
-        int c = 100;        // количество слотов задержки инициализации нового обновления
+        int n = 100;            // количество узлов в системе
+        int w = 25;             // количество узлов в кворуме записи
+        int r = 5;              // количество узлов в кворуме чтения
+        double q = 0.01;        // вероятность успешной записи
+        int c = 100;            // количество слотов задержки инициализации нового обновления
 
         switch (mode) {
 
@@ -64,6 +65,13 @@ public class MainDynamo {
                 }
                 CSVHandler.createCSV("outX", valuesW);
                 CSVHandler.createCSV("outY", valuesAoI);
+
+                FigureSettings settings = new FigureSettings(1);
+                settings.setTitle("График среднего возраста информации при увеличении w");
+                settings.setAxisX("w");
+                settings.setAxisY("AoI");
+                settings.addGraphicParameters("r = 5", "black", "default", "default", 0);
+                settings.saveJSON();
 
                 LinearFigure.plot("outX", "outY");
             }

@@ -8,7 +8,7 @@ public class DynamoBase implements IDynamo {
     private int w;      // размер кворума записи
     private int r;      // размер кворума чтения
     private double q;   // вероятность успешной записи
-    private int c;      // количество слотов задержки инициализая нового обновления
+    private int c;      // количество слотов задержки инициализации нового обновления
 
     private final ArrayList<Node> nodes;    // все узлы
     private int slotsToWait;                // счётчик слотов бездействия

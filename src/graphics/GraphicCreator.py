@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt  # type: ignore
 import csv
 import sys
 
-
+# считывание данных для построения из файла .csv
 def readFile(idx : int) -> list:
     res = []
     with open(sys.argv[idx], 'r', newline='') as file:

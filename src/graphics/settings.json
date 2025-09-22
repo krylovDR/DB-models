@@ -1,12 +1,12 @@
 {
-  "title" : "График среднего возраста информации при увеличении w",
-  "axis_x_name" : "w",
+  "title" : "График изменения возраста информации на узле в течении 1000 слотов",
+  "axis_x_name" : "Количество слотов",
   "axis_y_name" : "AoI",
   "graphics" : [ {
-    "graphic_name" : "r = 5",
-    "color" : "black",
-    "style" : "default",
-    "marker_style" : "default",
-    "dot_size" : 0
+    "graphic_name" : "Возраст информации на узле 4",
+    "color" : "k",
+    "style" : "-",
+    "marker_style" : "o",
+    "marker_size" : 0
   } ]
 }

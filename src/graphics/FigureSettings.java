@@ -32,7 +32,7 @@ public class FigureSettings {
             node.put("color", "color");
             node.put("style", "line");
             node.put("marker_style", "dot");
-            node.put("dot_size", 2);
+            node.put("marker_size", 2);
 
             graphicsArray.add(node);
         }
@@ -81,15 +81,15 @@ public class FigureSettings {
      * @param color цвет
      * @param style стиль
      * @param marker стиль маркера
-     * @param dotSize размер точки
+     * @param markerSize размер точки
      */
-    public void addGraphicParameters(String name, String color, String style, String marker, int dotSize) {
+    public void addGraphicParameters(String name, String color, String style, String marker, int markerSize) {
         ObjectNode node = mapper.createObjectNode();
         node.put("graphic_name", name);
         node.put("color", color);
         node.put("style", style);
         node.put("marker_style", marker);
-        node.put("dot_size", dotSize);
+        node.put("marker_size", markerSize);
 
         graphicsArray.add(node);
     }

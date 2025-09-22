@@ -57,6 +57,22 @@ public final class DynamoPerformer {
 
 
     /**
+     * Метод симуляции одного слота работы системы.
+     * @param id порядковый номер узла, с которого производится чтение
+     * @return возраст информации на узле id
+     */
+    public int simulateSlot(int id) {
+        int res = 0;
+
+        dBase.doWrite();
+        res = (int)dBase.getAOI(id);
+        dBase.nextSlot();
+
+        return res;
+    }
+
+
+    /**
      * Получение среднего возраста информации в системе
      * 
      * @return {@code double} - средний возраст информации (в слотах)

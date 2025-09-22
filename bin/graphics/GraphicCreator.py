@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt  # type: ignore
 import csv
 import sys
+import json
 
 # считывание данных для построения из файла .csv
 def readFile(idx : int) -> list:
@@ -19,11 +20,23 @@ def main() -> None:
     for i in range(1, len(sys.argv)):
         values.append(readFile(i))
 
+    with open("src\\graphics\\settings.json", "r", encoding="utf-8") as file:
+        json_data = json.load(file)
+
     # построение графика
     fig = plt.subplots()
     for i in range(1, len(values)):
-        plt.plot(values[0], values[i])
+        plt.plot(values[0], values[i], color=json_data["graphics"][i - 1]["color"], 
+                                       label=json_data["graphics"][i - 1]["graphic_name"],
+                                       linestyle=json_data["graphics"][i - 1]["style"],
+                                       marker=json_data["graphics"][i - 1]["marker_style"],
+                                       markersize=json_data["graphics"][i - 1]["marker_size"])
 
+    plt.xlabel(json_data["axis_x_name"])
+    plt.ylabel(json_data["axis_y_name"])
+    plt.title(json_data["title"])
+    plt.grid()
+    plt.legend()
     plt.show()
 
 

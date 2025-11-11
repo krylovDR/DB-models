@@ -17,8 +17,9 @@ public class MainDynamo {
      * AoI_Node - процесс изменения возраста информации за 50 слотов
      * r == c - график увеличения w при r == c
      * avgFrameSize - получение средней длины кадра
+     * Ew_graphics - графики E(w) от p
      */
-    public static final String mode = "r == c";
+    public static final String mode = "Ew_graphics";
     
     public static void main(String[] args) {
         int n = 100;            // количество узлов в системе
@@ -257,6 +258,66 @@ public class MainDynamo {
 
                 print("Средняя длина кадра при n = " + n + "; w = " + w + "; q = " + q);
                 print("avgFrameSize = " + sim.getAvgFrameSize());
+            }
+            case "Ew_graphics" -> {
+                List<Object> valuesQ = new LinkedList<>();        // для построения графиков, ось X
+                List<Object> valuesE1 = new LinkedList<>();       // для графика, ось Y
+                List<Object> valuesE2 = new LinkedList<>();       // для графика, ось Y
+                List<Object> valuesE3 = new LinkedList<>();       // для графика, ось Y
+                List<Object> valuesE4 = new LinkedList<>();       // для графика, ось Y
+
+                n = 10;
+
+                int w1 = 1;
+                int w2 = 3;
+                int w3 = 7;
+                int w4 = n;
+
+                // увеличение p от 0.1 до 1.0
+                for (q = 0.1; q < 1.0; q += 0.1) {
+                    var sim1 = new DynamoPerformer(n, w1, r, q, c);
+                    var sim2 = new DynamoPerformer(n, w2, r, q, c);
+                    var sim3 = new DynamoPerformer(n, w3, r, q, c);
+                    var sim4 = new DynamoPerformer(n, w4, r, q, c);
+                    
+                    sim1.simulate(500_000, 1);
+                    System.out.print("q = " + q + ";  1...");
+
+                    sim2.simulate(500_000, 1);
+                    System.out.print("2...");
+
+                    sim3.simulate(500_000, 1);
+                    System.out.print("3...");
+
+                    sim4.simulate(500_000, 1);
+                    System.out.println("4...");
+
+                    valuesQ.add(q);
+                    valuesE1.add(sim1.getAvgFrameSize());
+                    valuesE2.add(sim2.getAvgFrameSize());
+                    valuesE3.add(sim3.getAvgFrameSize());
+                    valuesE4.add(sim4.getAvgFrameSize());
+
+                    print("");
+                }
+
+                CSVHandler.createCSV("outX", valuesQ);
+                CSVHandler.createCSV("outY1", valuesE1);
+                CSVHandler.createCSV("outY2", valuesE2);
+                CSVHandler.createCSV("outY3", valuesE3);
+                CSVHandler.createCSV("outY4", valuesE4);
+
+                FigureSettings settings = new FigureSettings(4);
+                settings.setTitle("График E(w) в зависимости от p");
+                settings.setAxisX("p");
+                settings.setAxisY("slots");
+                settings.addGraphicParameters("w = " + w1, "k", "-", "o", 0);
+                settings.addGraphicParameters("w = " + w2, "r", "-", "o", 0);
+                settings.addGraphicParameters("w = " + w3, "b", "-", "o", 0);
+                settings.addGraphicParameters("w = " + w4, "g", "-", "o", 0);
+                settings.saveJSON();
+
+                LinearFigure.plot("outX", "outY1", "outY2", "outY3", "outY4");
             }
         }
         

@@ -1,22 +1,28 @@
 {
-  "title" : "График среднего возраста информации при увеличении w и r == с",
-  "axis_x_name" : "w",
-  "axis_y_name" : "AoI",
+  "title" : "График E(w) в зависимости от p",
+  "axis_x_name" : "p",
+  "axis_y_name" : "slots",
   "graphics" : [ {
-    "graphic_name" : "r = 2",
+    "graphic_name" : "w = 1",
     "color" : "k",
     "style" : "-",
     "marker_style" : "o",
     "marker_size" : 0
   }, {
-    "graphic_name" : "r = 10",
+    "graphic_name" : "w = 3",
     "color" : "r",
     "style" : "-",
     "marker_style" : "o",
     "marker_size" : 0
   }, {
-    "graphic_name" : "r = 40",
+    "graphic_name" : "w = 7",
     "color" : "b",
+    "style" : "-",
+    "marker_style" : "o",
+    "marker_size" : 0
+  }, {
+    "graphic_name" : "w = 10",
+    "color" : "g",
     "style" : "-",
     "marker_style" : "o",
     "marker_size" : 0

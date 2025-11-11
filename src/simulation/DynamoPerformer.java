@@ -8,6 +8,7 @@ public final class DynamoPerformer {
     private double avgAoI;                  // средний возраст информации в системе
     private double avgVersionAge;           // среднее время жизни обновления
     private double avgVerProfit;            // средняя избыточность обновлённых узлов
+    private double avgFrameSize;            // средняя длина кадра
 
     /**
      * Конструктор для симуляции.
@@ -24,6 +25,7 @@ public final class DynamoPerformer {
         avgAoI = 0.0;
         avgVersionAge = 0.0;
         avgVerProfit = 0.0;
+        avgFrameSize = 0.0;
     }
 
 
@@ -52,6 +54,8 @@ public final class DynamoPerformer {
         avgAoI = avgAoI / numExp;
         avgVersionAge = numSlots / dBase.getActualVersion();
         avgVerProfit = avgVerProfit / dBase.getActualVersion();
+        avgFrameSize = Double.valueOf(numSlots) / Double.valueOf(dBase.getActualVersion())
+                - Double.valueOf(dBase.getC());
         
     }
 
@@ -99,6 +103,12 @@ public final class DynamoPerformer {
     public double getAvgVerProfit() {
         return avgVerProfit;
     }
+
+
+    public double getAvgFrameSize() {
+        return avgFrameSize;
+    }
+
 
     @Override
     public String toString() {

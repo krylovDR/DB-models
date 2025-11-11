@@ -184,6 +184,10 @@ public class DynamoBase implements IDynamo {
         return curSlot;
     }
 
+    public int getC() {
+        return c;
+    }
+
 
     @Override
     public String toString() {

@@ -15,8 +15,10 @@ public class MainDynamo {
      * W2 - увеличение w при r = 5 и 15
      * verProfit - график verProfit в зависимости от w
      * AoI_Node - процесс изменения возраста информации за 50 слотов
+     * r == c - график увеличения w при r == c
+     * avgFrameSize - получение средней длины кадра
      */
-    public static final String mode = "AoI_Node";
+    public static final String mode = "r == c";
     
     public static void main(String[] args) {
         int n = 100;            // количество узлов в системе
@@ -192,6 +194,69 @@ public class MainDynamo {
                 settings.saveJSON();
 
                 LinearFigure.plot("outX", "outY");
+            }
+            case "r == c" -> {
+                List<Object> valuesW = new LinkedList<>();          // для построения графиков, ось X
+                List<Object> valuesAoI1 = new LinkedList<>();       // для графика при r = c = 2, ось Y
+                List<Object> valuesAoI2 = new LinkedList<>();       // для графика при r = c = 10, ось Y
+                List<Object> valuesAoI3 = new LinkedList<>();       // для графика при r = c = 40, ось Y
+
+                int r1 = 2;
+                int r2 = 15;
+                int r3 = 40;
+
+                // увеличение w от 1 до n при первом значении r
+                for (w = 1; w <= n; w++) {
+                    var sim1 = new DynamoPerformer(n, w, r1, q, r1);
+                    var sim2 = new DynamoPerformer(n, w, r2, q, r2);
+                    var sim3 = new DynamoPerformer(n, w, r3, q, r3);
+                    
+                    sim1.simulate(100_000, 1);
+                    System.out.print("w = " + w + ";  1...");
+
+                    sim2.simulate(100_000, 1);
+                    System.out.print("2...");
+
+                    sim3.simulate(100_000, 1);
+                    System.out.println("3...");
+
+                    valuesW.add(w);
+                    valuesAoI1.add(sim1.getAvgAOI());
+                    valuesAoI2.add(sim2.getAvgAOI());
+                    valuesAoI3.add(sim3.getAvgAOI());
+
+                    print("При r = " + r1 + ", ср. ко-во слотов в кадре: " + sim1.getAvgFrameSize());
+                    print("При r = " + r2 + ", ср. ко-во слотов в кадре: " + sim2.getAvgFrameSize());
+                    print("При r = " + r3 + ", ср. ко-во слотов в кадре: " + sim3.getAvgFrameSize());
+                    print("");
+                }
+
+                CSVHandler.createCSV("outX", valuesW);
+                CSVHandler.createCSV("outY1", valuesAoI1);
+                CSVHandler.createCSV("outY2", valuesAoI2);
+                CSVHandler.createCSV("outY3", valuesAoI3);
+
+                FigureSettings settings = new FigureSettings(3);
+                settings.setTitle("График среднего возраста информации при увеличении w и r == с");
+                settings.setAxisX("w");
+                settings.setAxisY("AoI");
+                settings.addGraphicParameters("r = 2", "k", "-", "o", 0);
+                settings.addGraphicParameters("r = 10", "r", "-", "o", 0);
+                settings.addGraphicParameters("r = 40", "b", "-", "o", 0);
+                settings.saveJSON();
+
+                LinearFigure.plot("outX", "outY1", "outY2", "outY3");
+            }
+            case "avgFrameSize" -> {
+                n = 10;
+                w = 1;
+                q = 0.1;
+
+                var sim = new DynamoPerformer(n, w, r, q, c);
+                sim.simulate(1_000_000, 1);
+
+                print("Средняя длина кадра при n = " + n + "; w = " + w + "; q = " + q);
+                print("avgFrameSize = " + sim.getAvgFrameSize());
             }
         }
         

@@ -10,16 +10,21 @@ import simulation.DynamoPerformer;
 public class MainDynamo {
 
     /**
-     * R - увеличение r
-     * W - увеличение w
-     * W2 - увеличение w при r = 5 и 15
-     * verProfit - график verProfit в зависимости от w
-     * AoI_Node - процесс изменения возраста информации за 50 слотов
-     * r == c - график увеличения w при r == c
+     * R            - график AoI (среднего возраста информации) в зависимости от r (кворума чтения)
+     * W            - график AoI в зависимости от w (кворума записи)
+     * W2           - график AoI в зависимости от w (при r = 5 и 15)
+     * r == c       - график AoI в зависимости от w при r == c
+     * 
+     * verProfit    - график verProfit (все обновившиеся узлы - W) в зависимости от w
+     * AoI_Node     - процесс изменения возраста информации за 50 слотов
+     *
      * avgFrameSize - получение средней длины кадра
-     * Ew_graphics - графики E(w) от p
+     * Ew_graphics  - графики E(w) (средней длины кадра) от q (вероятности успешной записи)
+     * AoI-Ew : W   - График AoI и Ew в зависимости от w
+     * 
+     * 
      */
-    public static final String mode = "Ew_graphics";
+    public static final String mode = "AoI-Ew : W";
     
     public static void main(String[] args) {
         int n = 100;            // количество узлов в системе
@@ -31,7 +36,7 @@ public class MainDynamo {
         switch (mode) {
 
             /**
-             * График увеличения r при постоянных n, w, q
+             * График среднего возраста информации от увеличения r при постоянных n, w, q
              */
             case "R" -> {
                 List<Object> valuesR = new LinkedList<>();          // для построения графиков, ось X
@@ -60,7 +65,7 @@ public class MainDynamo {
             }
 
             /**
-             * График увеличения w при постоянных n, r, q
+             * График среднего возраста информации от увеличения w при постоянных n, r, q
              */
             case "W" -> {
                 List<Object> valuesW = new LinkedList<>();          // для построения графиков, ось X
@@ -260,6 +265,9 @@ public class MainDynamo {
                 print("avgFrameSize = " + sim.getAvgFrameSize());
             }
             case "Ew_graphics" -> {
+
+                // График средней длины кадра в зависимости от вероятности успешной доставки
+
                 List<Object> valuesQ = new LinkedList<>();        // для построения графиков, ось X
                 List<Object> valuesE1 = new LinkedList<>();       // для графика, ось Y
                 List<Object> valuesE2 = new LinkedList<>();       // для графика, ось Y
@@ -318,6 +326,39 @@ public class MainDynamo {
                 settings.saveJSON();
 
                 LinearFigure.plot("outX", "outY1", "outY2", "outY3", "outY4");
+            }
+
+            /**
+             * График AoI и Ew в зависимости от w
+             */
+            case "AoI-Ew : W" -> {
+                List<Object> valuesW = new LinkedList<>();          // для построения графиков,    ось X
+                List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
+                List<Object> valuesEw = new LinkedList<>();         // для построения графика Ew,  ось Y
+
+                // увеличение w от 1 до n
+                for (w = 1; w <= n; w++) {
+                    var sim = new DynamoPerformer(n, w, r, q, c);
+                    sim.simulate(100_000, 1);
+
+                    valuesW.add(w);
+                    valuesAoI.add(sim.getAvgAOI());
+                    valuesEw.add(sim.getAvgFrameSize());
+                    print("w = " + w + ", avg AoI: " + sim.getAvgAOI() + ", Ew: " + sim.getAvgFrameSize());
+                }
+                CSVHandler.createCSV("outX", valuesW);
+                CSVHandler.createCSV("outY", valuesAoI);
+                CSVHandler.createCSV("outY2", valuesEw);
+
+                FigureSettings settings = new FigureSettings(2);
+                settings.setTitle("Графики AoI и Ew в зависимости от w");
+                settings.setAxisX("w");
+                settings.setAxisY("slots");
+                settings.addGraphicParameters("AoI", "k", "-", "o", 0);
+                settings.addGraphicParameters("Ew", "r", "-", "o", 0);
+                settings.saveJSON();
+
+                LinearFigure.plot("outX", "outY", "outY2");
             }
         }
         

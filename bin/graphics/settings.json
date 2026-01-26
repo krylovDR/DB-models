@@ -1,28 +1,16 @@
 {
-  "title" : "График E(w) в зависимости от p",
-  "axis_x_name" : "p",
+  "title" : "Графики AoI и Ew в зависимости от w",
+  "axis_x_name" : "w",
   "axis_y_name" : "slots",
   "graphics" : [ {
-    "graphic_name" : "w = 1",
+    "graphic_name" : "AoI",
     "color" : "k",
     "style" : "-",
     "marker_style" : "o",
     "marker_size" : 0
   }, {
-    "graphic_name" : "w = 3",
+    "graphic_name" : "Ew",
     "color" : "r",
-    "style" : "-",
-    "marker_style" : "o",
-    "marker_size" : 0
-  }, {
-    "graphic_name" : "w = 7",
-    "color" : "b",
-    "style" : "-",
-    "marker_style" : "o",
-    "marker_size" : 0
-  }, {
-    "graphic_name" : "w = 10",
-    "color" : "g",
     "style" : "-",
     "marker_style" : "o",
     "marker_size" : 0

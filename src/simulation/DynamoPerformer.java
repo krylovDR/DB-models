@@ -42,14 +42,16 @@ public final class DynamoPerformer {
         int numExp = 0;
 
         for (int curSlot = 0; curSlot < numSlots; curSlot++) {
+            dBase.nextSlot();
             dBase.doWrite();
+
             if (curSlot % readPeriod == 0) {
                 avgAoI += curSlot - dBase.doRead();     // подсчёт возраста информации
                 numExp++;
             }
-            avgVerProfit = avgVerProfit + dBase.getVerProfit();    // подсчёт среднего verProfit
             
-            dBase.nextSlot();
+            if (dBase.isUpdateComplete())
+                avgVerProfit = avgVerProfit + dBase.getVerProfit();    // подсчёт среднего verProfit
         }
         avgAoI = avgAoI / numExp;
         avgVersionAge = numSlots / dBase.getActualVersion();

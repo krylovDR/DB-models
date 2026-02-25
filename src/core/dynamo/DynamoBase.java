@@ -93,11 +93,13 @@ public class DynamoBase implements IDynamo {
 
         if (slotsToWait != 0) {
             slotsToWait--;
+
+            if (slotsToWait == 0)
+                actualTimeStamp = curSlot;  // временная метка текущего обновления
             return;
         }
 
         if (isUpdateComplete()) {
-            actualTimeStamp = curSlot;  // временная метка текущего обновления
             actualVersion++;            // номер текущего обновления
             slotsToWait = c;            // начало задержки инициализации будущего обновления
         }
@@ -217,7 +219,7 @@ public class DynamoBase implements IDynamo {
 
         private Node(int id) {
             this.id = id;
-            timeStamp = 0;
+            timeStamp = -1;
         }
 
         @Override

@@ -1,16 +1,22 @@
 {
-  "title" : "Графики AoI и Ew в зависимости от w",
-  "axis_x_name" : "w",
-  "axis_y_name" : "slots",
+  "title" : "Графики verProfit в зависимости от размера кворума w при разных q",
+  "axis_x_name" : "Размер кворума записи w, слотов",
+  "axis_y_name" : "verProfit, узлов",
   "graphics" : [ {
-    "graphic_name" : "AoI",
+    "graphic_name" : "q = 0.05",
     "color" : "k",
     "style" : "-",
     "marker_style" : "o",
     "marker_size" : 0
   }, {
-    "graphic_name" : "Ew",
+    "graphic_name" : "q = 0.15",
     "color" : "r",
+    "style" : "-",
+    "marker_style" : "o",
+    "marker_size" : 0
+  }, {
+    "graphic_name" : "q = 0.3",
+    "color" : "g",
     "style" : "-",
     "marker_style" : "o",
     "marker_size" : 0

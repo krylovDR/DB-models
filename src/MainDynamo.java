@@ -9,36 +9,40 @@ import simulation.DynamoPerformer;
 
 public class MainDynamo {
 
-    /**
-     * R            - график AoI (среднего возраста информации) в зависимости от r (кворума чтения)
-     * W            - график AoI в зависимости от w (кворума записи)
-     * W2           - график AoI в зависимости от w (при r = 5 и 15)
-     * r == c       - график AoI в зависимости от w при r == c
-     * 
-     * verProfit    - график verProfit (все обновившиеся узлы - W) в зависимости от w
-     * AoI_Node     - процесс изменения возраста информации за 50 слотов
-     *
-     * avgFrameSize - получение средней длины кадра
-     * Ew_graphics  - графики E(w) (средней длины кадра) от q (вероятности успешной записи)
-     * AoI-Ew : W   - График AoI и Ew в зависимости от w
-     * 
-     * 
-     */
-    public static final String mode = "AoI-Ew : W";
+    private enum Mode {
+        AoI_R,          // график AoI (среднего возраста информации) в зависимости от r (кворума чтения)
+        AoI_W,          // график AoI в зависимости от w (кворума записи)
+        AoI_W_2,        // 2 графика AoI в зависимости от w (при r = 5 и 15)
+        AoI_W_3,        // график AoI в зависимости от w (при r == c)
+
+        VP_AoI_W,       // 2 графика verProfit (все обновившиеся узлы - W) и AoI в зависимости от w
+        AoI_NODE,       // процесс изменения возраста информации на узле за 50 слотов
+
+        EW,             // вычисление средней длины кадра (Ew)
+        EW_Q,           // графики Ew от q (вероятности успешной записи)
+        AoI_EW_W,       // 2 графика: AoI и Ew в зависимости от w
+
+        AoI_C_sc,       // график AoI в зависимости от задержки c, а также наличие смещения минимума с
+                        // изменением w при разных c
+        VP_Q_sc         // график verProfit в зависимости от q при разных w, а также verProfit с изменением
+                        // w при разных q
+    }
+
+    public static final Mode mode = Mode.AoI_C_sc;
     
     public static void main(String[] args) {
-        int n = 100;            // количество узлов в системе
-        int w = 25;             // количество узлов в кворуме записи
-        int r = 20;              // количество узлов в кворуме чтения
-        double q = 0.01;        // вероятность успешной записи
-        int c = 100;            // количество слотов задержки инициализации нового обновления
+        int n = 100;                // количество узлов в системе
+        int w = 25;                 // количество узлов в кворуме записи
+        int r = 20;                 // количество узлов в кворуме чтения
+        double q = 0.01;            // вероятность успешной записи
+        int c = 100;                // количество слотов задержки инициализации нового обновления
 
         switch (mode) {
 
             /**
              * График среднего возраста информации от увеличения r при постоянных n, w, q
              */
-            case "R" -> {
+            case AoI_R -> {
                 List<Object> valuesR = new LinkedList<>();          // для построения графиков, ось X
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
 
@@ -67,7 +71,7 @@ public class MainDynamo {
             /**
              * График среднего возраста информации от увеличения w при постоянных n, r, q
              */
-            case "W" -> {
+            case AoI_W -> {
                 List<Object> valuesW = new LinkedList<>();          // для построения графиков, ось X
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
 
@@ -96,7 +100,7 @@ public class MainDynamo {
             /**
              * График среднего возраста информации при увеличении w и двух разных r
              */
-            case "W2" -> {
+            case AoI_W_2 -> {
                 List<Object> valuesW = new LinkedList<>();          // для построения графиков, ось X
                 List<Object> valuesAoI1 = new LinkedList<>();       // для построения графика AoI, ось Y
                 List<Object> valuesAoI2 = new LinkedList<>();       // для построения графика AoI, ось Y
@@ -140,7 +144,7 @@ public class MainDynamo {
             /**
              * Графики средней избыточности verProfit и среднего возраста информации в зависимости от w
              */
-            case "verProfit" -> {
+            case VP_AoI_W -> {
                 List<Object> valuesW = new LinkedList<>();          // для построения графиков, ось X
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
                 List<Object> valuesVerProfit = new LinkedList<>();  // для построения графика verProfit, ось Y
@@ -174,7 +178,7 @@ public class MainDynamo {
             /**
              * График изменения возраста информации на узле в течении 1000 слотов
              */
-            case "AoI_Node" -> {
+            case AoI_NODE -> {
                 List<Object> valuesSlots = new LinkedList<>();      // для построения графиков, ось X
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
 
@@ -201,7 +205,7 @@ public class MainDynamo {
 
                 LinearFigure.plot("outX", "outY");
             }
-            case "r == c" -> {
+            case AoI_W_3 -> {
                 List<Object> valuesW = new LinkedList<>();          // для построения графиков, ось X
                 List<Object> valuesAoI1 = new LinkedList<>();       // для графика при r = c = 2, ось Y
                 List<Object> valuesAoI2 = new LinkedList<>();       // для графика при r = c = 10, ось Y
@@ -253,7 +257,7 @@ public class MainDynamo {
 
                 LinearFigure.plot("outX", "outY1", "outY2", "outY3");
             }
-            case "avgFrameSize" -> {
+            case EW -> {
                 n = 10;
                 w = 4;
                 r = 3;
@@ -265,7 +269,7 @@ public class MainDynamo {
                 print("Средняя длина кадра при n = " + n + "; w = " + w + "; q = " + q);
                 print("avgFrameSize = " + sim.getAvgFrameSize());
             }
-            case "Ew_graphics" -> {
+            case EW_Q -> {
 
                 // График средней длины кадра в зависимости от вероятности успешной доставки
 
@@ -332,7 +336,7 @@ public class MainDynamo {
             /**
              * График AoI и Ew в зависимости от w
              */
-            case "AoI-Ew : W" -> {
+            case AoI_EW_W -> {
                 List<Object> valuesW = new LinkedList<>();          // для построения графиков,    ось X
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
                 List<Object> valuesEw = new LinkedList<>();         // для построения графика Ew,  ось Y
@@ -360,6 +364,236 @@ public class MainDynamo {
                 settings.saveJSON();
 
                 LinearFigure.plot("outX", "outY", "outY2");
+            }
+
+            case AoI_C_sc -> {
+                List<Object> valuesC = new LinkedList<>();              // для построения графиков,      ось X
+                List<Object> valuesAoI1 = new LinkedList<>();           // для построения графика AoI 1, ось Y
+                List<Object> valuesAoI2 = new LinkedList<>();           // для построения графика AoI 2, ось Y
+                List<Object> valuesAoI3 = new LinkedList<>();           // для построения графика AoI 3, ось Y
+
+                n = 100;
+                int w1 = 10;
+                int w2 = 20;
+                int w3 = 40;
+                r = 10;
+                q = 0.01;
+
+                // увеличение c от 0 до 500
+                for (c = 1; c <= 500; c++) {
+                    var sim1 = new DynamoPerformer(n, w1, r, q, c);
+                    var sim2 = new DynamoPerformer(n, w2, r, q, c);
+                    var sim3 = new DynamoPerformer(n, w3, r, q, c);
+                    
+                    sim1.simulate(100_000, 1);
+                    sim2.simulate(100_000, 1);
+                    sim3.simulate(100_000, 1);
+
+                    valuesC.add(c);
+                    valuesAoI1.add(sim1.getAvgAOI());
+                    valuesAoI2.add(sim2.getAvgAOI());
+                    valuesAoI3.add(sim3.getAvgAOI());
+
+                    print("c = " + c + ", avgAoI [1] [2] [3] : [" + sim1.getAvgAOI() + 
+                                                            "] [" + sim2.getAvgAOI() + 
+                                                            "] [" + sim3.getAvgAOI() + "]");
+                }
+
+                CSVHandler.createCSV("outC", valuesC);
+                CSVHandler.createCSV("outY1", valuesAoI1);
+                CSVHandler.createCSV("outY2", valuesAoI2);
+                CSVHandler.createCSV("outY3", valuesAoI3);
+
+                FigureSettings settings = new FigureSettings(3);
+
+                settings.setTitle("Графики AoI в зависимости от задержки c при разных w");
+                settings.setAxisX("Длительность задержки, слотов");
+                settings.setAxisY("AoI, слотов");
+
+                settings.addGraphicParameters("w = " + w1, "k", "-", "o", 0);
+                settings.addGraphicParameters("w = " + w2, "r", "-", "o", 0);
+                settings.addGraphicParameters("w = " + w3, "g", "-", "o", 0);
+
+                settings.saveJSON();
+
+                LinearFigure.plot("outC", "outY1", "outY2", "outY3");
+
+                // ======== вычисление AoI в зависимости от w при разных c =================
+
+                List<Object> valuesW = new LinkedList<>();              
+                valuesAoI1.clear();
+                valuesAoI2.clear();
+                valuesAoI3.clear();
+
+                int c1 = 50;
+                int c2 = 200;
+                int c3 = 400;
+
+                // увеличение w от 1 до n
+                for (w = 1; w <= n; w++) {
+                    var sim1 = new DynamoPerformer(n, w, r, q, c1);
+                    var sim2 = new DynamoPerformer(n, w, r, q, c2);
+                    var sim3 = new DynamoPerformer(n, w, r, q, c3);
+                    
+                    sim1.simulate(100_000, 1);
+                    sim2.simulate(100_000, 1);
+                    sim3.simulate(100_000, 1);
+
+                    valuesW.add(w);
+                    valuesAoI1.add(sim1.getAvgAOI());
+                    valuesAoI2.add(sim2.getAvgAOI());
+                    valuesAoI3.add(sim3.getAvgAOI());
+
+                    print("w = " + w + ", avgAoI [1] [2] [3] : [" + sim1.getAvgAOI() + 
+                                                            "] [" + sim2.getAvgAOI() + 
+                                                            "] [" + sim3.getAvgAOI() + "]");
+                }
+
+                CSVHandler.createCSV("outW", valuesW);
+                CSVHandler.createCSV("outY1", valuesAoI1);
+                CSVHandler.createCSV("outY2", valuesAoI2);
+                CSVHandler.createCSV("outY3", valuesAoI3);
+
+                FigureSettings settings2 = new FigureSettings(3);
+
+                settings2.setTitle("Графики AoI в зависимости от размера кворума w при разных c");
+                settings2.setAxisX("Размер кворума записи w, слотов");
+                settings2.setAxisY("AoI, слотов");
+
+                settings2.addGraphicParameters("c = " + c1, "k", "-", "o", 0);
+                settings2.addGraphicParameters("c = " + c2, "r", "-", "o", 0);
+                settings2.addGraphicParameters("c = " + c3, "g", "-", "o", 0);
+
+                settings2.saveJSON();
+
+                LinearFigure.plot("outW", "outY1", "outY2", "outY3");
+
+                print("Минимумы [узлов в кворуме, значение]:");
+                
+                double min1 = (double) valuesAoI1.get(0);
+                double min2 = (double) valuesAoI2.get(0);
+                double min3 = (double) valuesAoI3.get(0);
+
+                var it1 = valuesAoI1.listIterator();
+                var it2 = valuesAoI2.listIterator();
+                var it3 = valuesAoI3.listIterator();
+                
+                while (it1.hasNext() && it2.hasNext() && it3.hasNext()) {
+                    double tmp1 = (double) it1.next();
+                    double tmp2 = (double) it2.next();
+                    double tmp3 = (double) it3.next();
+
+                    min1 = min1 > tmp1 ? tmp1 : min1;
+                    min2 = min2 > tmp2 ? tmp2 : min2;
+                    min3 = min3 > tmp3 ? tmp3 : min3;
+                }
+
+                print("При c = " + c1 + ", [" + valuesAoI1.indexOf((Object) min1) + ", " + min1 + "]");
+                print("При c = " + c2 + ", [" + valuesAoI2.indexOf((Object) min2) + ", " + min2 + "]");
+                print("При c = " + c3 + ", [" + valuesAoI3.indexOf((Object) min3) + ", " + min3 + "]");
+            }
+
+            case VP_Q_sc -> {
+                List<Object> valuesQ = new LinkedList<>();      // для построения графиков,            ось X
+                List<Object> valuesVP1 = new LinkedList<>();    // для построения графика verProfit 1, ось Y
+                List<Object> valuesVP2 = new LinkedList<>();    // для построения графика verProfit 2, ось Y
+                List<Object> valuesVP3 = new LinkedList<>();    // для построения графика verProfit 3, ось Y
+
+                n = 100;
+                int w1 = 10;
+                int w2 = 20;
+                int w3 = 40;
+                r = 10;
+                c = 100;
+
+                // увеличение c от 0 до 500
+                for (q = 0.01; q < 1.0; q += 0.01) {
+                    var sim1 = new DynamoPerformer(n, w1, r, q, c);
+                    var sim2 = new DynamoPerformer(n, w2, r, q, c);
+                    var sim3 = new DynamoPerformer(n, w3, r, q, c);
+                    
+                    sim1.simulate(1_000_000, 1);
+                    sim2.simulate(1_000_000, 1);
+                    sim3.simulate(1_000_000, 1);
+
+                    valuesQ.add(q);
+                    valuesVP1.add(sim1.getAvgVerProfit());
+                    valuesVP2.add(sim2.getAvgVerProfit());
+                    valuesVP3.add(sim3.getAvgVerProfit());
+
+                    print("q = " + q + ", avgVerProfit [1] [2] [3] : [" + sim1.getAvgVerProfit() + 
+                                                                  "] [" + sim2.getAvgVerProfit() + 
+                                                                  "] [" + sim3.getAvgVerProfit() + "]");
+                }
+
+                CSVHandler.createCSV("outQ", valuesQ);
+                CSVHandler.createCSV("outVP1", valuesVP1);
+                CSVHandler.createCSV("outVP2", valuesVP2);
+                CSVHandler.createCSV("outVP3", valuesVP3);
+
+                FigureSettings settings = new FigureSettings(3);
+
+                settings.setTitle("Графики verProfit в зависимости от вероятности q при разных w");
+                settings.setAxisX("Значение вероятности");
+                settings.setAxisY("verProfit, узлов");
+
+                settings.addGraphicParameters("w = " + w1, "k", "-", "o", 0);
+                settings.addGraphicParameters("w = " + w2, "r", "-", "o", 0);
+                settings.addGraphicParameters("w = " + w3, "g", "-", "o", 0);
+
+                settings.saveJSON();
+
+                LinearFigure.plot("outQ", "outVP1", "outVP2", "outVP3");
+
+                // ======== вычисление verProfit в зависимости от w при разных q =================
+
+                List<Object> valuesW = new LinkedList<>();              
+                valuesVP1.clear();
+                valuesVP2.clear();
+                valuesVP3.clear();
+
+                double q1 = 0.05;
+                double q2 = 0.15;
+                double q3 = 0.30;
+
+                // увеличение w от 1 до n
+                for (w = 1; w <= n; w++) {
+                    var sim1 = new DynamoPerformer(n, w, r, q1, c);
+                    var sim2 = new DynamoPerformer(n, w, r, q2, c);
+                    var sim3 = new DynamoPerformer(n, w, r, q3, c);
+                    
+                    sim1.simulate(200_000, 1);
+                    sim2.simulate(200_000, 1);
+                    sim3.simulate(200_000, 1);
+
+                    valuesW.add(w);
+                    valuesVP1.add(sim1.getAvgVerProfit());
+                    valuesVP2.add(sim2.getAvgVerProfit());
+                    valuesVP3.add(sim3.getAvgVerProfit());
+
+                    print("w = " + w + ", avgVerProfit [1] [2] [3] : [" + sim1.getAvgVerProfit() + 
+                                                                  "] [" + sim2.getAvgVerProfit() + 
+                                                                  "] [" + sim3.getAvgVerProfit() + "]");
+                }
+
+                CSVHandler.createCSV("outW", valuesW);
+                CSVHandler.createCSV("outVP1", valuesVP1);
+                CSVHandler.createCSV("outVP2", valuesVP2);
+                CSVHandler.createCSV("outVP3", valuesVP3);
+
+                FigureSettings settings2 = new FigureSettings(3);
+
+                settings2.setTitle("Графики verProfit в зависимости от размера кворума w при разных q");
+                settings2.setAxisX("Размер кворума записи w, слотов");
+                settings2.setAxisY("verProfit, узлов");
+
+                settings2.addGraphicParameters("q = " + q1, "k", "-", "o", 0);
+                settings2.addGraphicParameters("q = " + q2, "r", "-", "o", 0);
+                settings2.addGraphicParameters("q = " + q3, "g", "-", "o", 0);
+
+                settings2.saveJSON();
+
+                LinearFigure.plot("outW", "outVP1", "outVP2", "outVP3");
             }
         }
         

@@ -40,6 +40,7 @@ public final class DynamoPerformer {
         if (readPeriod < 1) throw new RuntimeException("readPeriod must be >0");
 
         int numExp = 0;
+        int curVersion = 0;     // текущая версия, нужна для верного подсчёта verProfit
 
         for (int curSlot = 0; curSlot < numSlots; curSlot++) {
             dBase.nextSlot();
@@ -50,8 +51,10 @@ public final class DynamoPerformer {
                 numExp++;
             }
             
-            if (dBase.isUpdateComplete())
-                avgVerProfit = avgVerProfit + dBase.getVerProfit();    // подсчёт среднего verProfit
+            if (curVersion != dBase.getActualVersion()) {
+                avgVerProfit += dBase.getVerProfit();    // подсчёт среднего verProfit
+                curVersion = dBase.getActualVersion();
+            }
         }
         avgAoI = avgAoI / numExp;
         avgVersionAge = numSlots / dBase.getActualVersion();

@@ -16,11 +16,11 @@ public final class DynamoPerformer {
      * @param n - общее количество узлов,
      * @param w - количество узлов в кворуме записи
      * @param r - количество узлов в кворуме чтения
-     * @param q - вероятность успешной записи на отдельный узел
+     * @param p - вероятность успешной записи на отдельный узел
      * @param c - количество слотов задержки инициализации нового обновления
      */
-    public DynamoPerformer(int n, int w, int r, double q, int c) {
-        dBase = new DynamoBase(n, w, r, q, c);
+    public DynamoPerformer(int n, int w, int r, double p, int c) {
+        dBase = new DynamoBase(n, w, r, p, c);
 
         avgAoI = 0.0;
         avgVersionAge = 0.0;
@@ -165,7 +165,7 @@ public final class DynamoPerformer {
         dBase = new DynamoBase(builder.n,
                                builder.w,
                                builder.r,
-                               builder.q,
+                               builder.p,
                                builder.c);
     }
 
@@ -174,7 +174,7 @@ public final class DynamoPerformer {
         private int n;
         private int w;
         private int r;
-        private double q;
+        private double p;
         private int c;
 
         public Builder setN(int n) {
@@ -192,8 +192,8 @@ public final class DynamoPerformer {
             return this;
         }
 
-        public Builder setQ(double q) {
-            this.q = q;
+        public Builder setP(double p) {
+            this.p = p;
             return this;
         }
 

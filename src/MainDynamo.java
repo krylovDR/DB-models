@@ -19,13 +19,13 @@ public class MainDynamo {
         AoI_NODE,       // процесс изменения возраста информации на узле за 50 слотов
 
         EW,             // вычисление средней длины кадра (Ew)
-        EW_Q,           // графики Ew от q (вероятности успешной записи)
+        EW_P,           // графики Ew от p (вероятности успешной записи)
         AoI_EW_W,       // 2 графика: AoI и Ew в зависимости от w
 
         AoI_C_sc,       // график AoI в зависимости от задержки c, а также наличие смещения минимума с
                         // изменением w при разных c
-        VP_Q_sc,        // график verProfit в зависимости от q при разных w, а также verProfit с изменением
-                        // w при разных q
+        VP_P_sc,        // график verProfit в зависимости от p при разных w, а также verProfit с изменением
+                        // w при разных p
 
         AoI_W_ReadC     // график AoI в зависимости от w для случая, когда чтение происходит только во
                         // время задержки
@@ -35,15 +35,15 @@ public class MainDynamo {
     
     public static void main(String[] args) {
         int n = 100;                // количество узлов в системе
-        int w = 25;                 // количество узлов в кворуме записи
+        int w = 20;                 // количество узлов в кворуме записи
         int r = 20;                 // количество узлов в кворуме чтения
-        double q = 0.01;            // вероятность успешной записи
+        double p = 0.5;            // вероятность успешной записи
         int c = 100;                // количество слотов задержки инициализации нового обновления
 
         switch (mode) {
 
             /**
-             * График среднего возраста информации от увеличения r при постоянных n, w, q
+             * График среднего возраста информации от увеличения r при постоянных n, w, p
              */
             case AoI_R -> {
                 List<Object> valuesR = new LinkedList<>();          // для построения графиков, ось X
@@ -51,7 +51,7 @@ public class MainDynamo {
 
                 // увеличение r от 1 до n
                 for (r = 1; r <= n; r++) {
-                    var sim = new DynamoPerformer(n, w, r, q, c);
+                    var sim = new DynamoPerformer(n, w, r, p, c);
                     sim.simulate(100_000, 1);
 
                     valuesR.add(r);
@@ -72,7 +72,7 @@ public class MainDynamo {
             }
 
             /**
-             * График среднего возраста информации от увеличения w при постоянных n, r, q
+             * График среднего возраста информации от увеличения w при постоянных n, r, p
              */
             case AoI_W -> {
                 List<Object> valuesW = new LinkedList<>();          // для построения графиков, ось X
@@ -80,7 +80,7 @@ public class MainDynamo {
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
-                    var sim = new DynamoPerformer(n, w, r, q, c);
+                    var sim = new DynamoPerformer(n, w, r, p, c);
                     sim.simulate(100_000, 1);
 
                     valuesW.add(w);
@@ -110,7 +110,7 @@ public class MainDynamo {
 
                 // увеличение w от 1 до n при первом значении r
                 for (w = 1; w <= n; w++) {
-                    var sim = new DynamoPerformer(n, w, r, q, c);
+                    var sim = new DynamoPerformer(n, w, r, p, c);
                     sim.simulate(100_000, 1);
 
                     valuesW.add(w);
@@ -122,7 +122,7 @@ public class MainDynamo {
                 print("\n==================== r = " + r + " ====================\n");
                 // увеличение w от 1 до n при втором значении r
                 for (w = 1; w <= n; w++) {
-                    var sim = new DynamoPerformer(n, w, r, q, c);
+                    var sim = new DynamoPerformer(n, w, r, p, c);
                     sim.simulate(100_000, 1);
 
                     valuesAoI2.add(sim.getAvgAOI());
@@ -154,7 +154,7 @@ public class MainDynamo {
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
-                    var sim = new DynamoPerformer(n, w, r, q, c);
+                    var sim = new DynamoPerformer(n, w, r, p, c);
                     sim.simulate(100_000, 1);
 
                     valuesW.add(w);
@@ -185,7 +185,7 @@ public class MainDynamo {
                 List<Object> valuesSlots = new LinkedList<>();      // для построения графиков, ось X
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
 
-                var sim = new DynamoPerformer(n, w, r, q, c);
+                var sim = new DynamoPerformer(n, w, r, p, c);
 
                 // пропускаем 10000 слотов до стабильного состояния системы
                 for (int i = 0; i < 10000; i++) sim.simulateSlot(4);
@@ -220,9 +220,9 @@ public class MainDynamo {
 
                 // увеличение w от 1 до n при первом значении r
                 for (w = 1; w <= n; w++) {
-                    var sim1 = new DynamoPerformer(n, w, r1, q, r1);
-                    var sim2 = new DynamoPerformer(n, w, r2, q, r2);
-                    var sim3 = new DynamoPerformer(n, w, r3, q, r3);
+                    var sim1 = new DynamoPerformer(n, w, r1, p, r1);
+                    var sim2 = new DynamoPerformer(n, w, r2, p, r2);
+                    var sim3 = new DynamoPerformer(n, w, r3, p, r3);
                     
                     sim1.simulate(100_000, 1);
                     System.out.print("w = " + w + ";  1...");
@@ -264,19 +264,19 @@ public class MainDynamo {
                 n = 10;
                 w = 4;
                 r = 3;
-                q = 0.1;
+                p = 0.1;
 
-                var sim = new DynamoPerformer(n, w, r, q, c);
+                var sim = new DynamoPerformer(n, w, r, p, c);
                 sim.simulate(1_000_000, 1);
 
-                print("Средняя длина кадра при n = " + n + "; w = " + w + "; q = " + q);
+                print("Средняя длина кадра при n = " + n + "; w = " + w + "; p = " + p);
                 print("avgFrameSize = " + sim.getAvgFrameSize());
             }
-            case EW_Q -> {
+            case EW_P -> {
 
                 // График средней длины кадра в зависимости от вероятности успешной доставки
 
-                List<Object> valuesQ = new LinkedList<>();        // для построения графиков, ось X
+                List<Object> valuesP = new LinkedList<>();        // для построения графиков, ось X
                 List<Object> valuesE1 = new LinkedList<>();       // для графика, ось Y
                 List<Object> valuesE2 = new LinkedList<>();       // для графика, ось Y
                 List<Object> valuesE3 = new LinkedList<>();       // для графика, ось Y
@@ -290,14 +290,14 @@ public class MainDynamo {
                 int w4 = n;
 
                 // увеличение p от 0.1 до 1.0
-                for (q = 0.1; q < 1.0; q += 0.1) {
-                    var sim1 = new DynamoPerformer(n, w1, r, q, c);
-                    var sim2 = new DynamoPerformer(n, w2, r, q, c);
-                    var sim3 = new DynamoPerformer(n, w3, r, q, c);
-                    var sim4 = new DynamoPerformer(n, w4, r, q, c);
+                for (p = 0.1; p < 1.0; p += 0.1) {
+                    var sim1 = new DynamoPerformer(n, w1, r, p, c);
+                    var sim2 = new DynamoPerformer(n, w2, r, p, c);
+                    var sim3 = new DynamoPerformer(n, w3, r, p, c);
+                    var sim4 = new DynamoPerformer(n, w4, r, p, c);
                     
                     sim1.simulate(500_000, 1);
-                    System.out.print("q = " + q + ";  1...");
+                    System.out.print("p = " + p + ";  1...");
 
                     sim2.simulate(500_000, 1);
                     System.out.print("2...");
@@ -308,7 +308,7 @@ public class MainDynamo {
                     sim4.simulate(500_000, 1);
                     System.out.println("4...");
 
-                    valuesQ.add(q);
+                    valuesP.add(p);
                     valuesE1.add(sim1.getAvgFrameSize());
                     valuesE2.add(sim2.getAvgFrameSize());
                     valuesE3.add(sim3.getAvgFrameSize());
@@ -317,7 +317,7 @@ public class MainDynamo {
                     print("");
                 }
 
-                CSVHandler.createCSV("outX", valuesQ);
+                CSVHandler.createCSV("outX", valuesP);
                 CSVHandler.createCSV("outY1", valuesE1);
                 CSVHandler.createCSV("outY2", valuesE2);
                 CSVHandler.createCSV("outY3", valuesE3);
@@ -346,7 +346,7 @@ public class MainDynamo {
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
-                    var sim = new DynamoPerformer(n, w, r, q, c);
+                    var sim = new DynamoPerformer(n, w, r, p, c);
                     sim.simulate(100_000, 1);
 
                     valuesW.add(w);
@@ -380,13 +380,13 @@ public class MainDynamo {
                 int w2 = 20;
                 int w3 = 40;
                 r = 10;
-                q = 0.01;
+                p = 0.01;
 
                 // увеличение c от 0 до 500
                 for (c = 1; c <= 500; c++) {
-                    var sim1 = new DynamoPerformer(n, w1, r, q, c);
-                    var sim2 = new DynamoPerformer(n, w2, r, q, c);
-                    var sim3 = new DynamoPerformer(n, w3, r, q, c);
+                    var sim1 = new DynamoPerformer(n, w1, r, p, c);
+                    var sim2 = new DynamoPerformer(n, w2, r, p, c);
+                    var sim3 = new DynamoPerformer(n, w3, r, p, c);
                     
                     sim1.simulate(1_000_000, 1);
                     sim2.simulate(1_000_000, 1);
@@ -434,9 +434,9 @@ public class MainDynamo {
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
-                    var sim1 = new DynamoPerformer(n, w, r, q, c1);
-                    var sim2 = new DynamoPerformer(n, w, r, q, c2);
-                    var sim3 = new DynamoPerformer(n, w, r, q, c3);
+                    var sim1 = new DynamoPerformer(n, w, r, p, c1);
+                    var sim2 = new DynamoPerformer(n, w, r, p, c2);
+                    var sim3 = new DynamoPerformer(n, w, r, p, c3);
                     
                     sim1.simulate(1_000_000, 1);
                     sim2.simulate(1_000_000, 1);
@@ -496,8 +496,8 @@ public class MainDynamo {
                 print("При c = " + c3 + ", [" + valuesAoI3.indexOf((Object) min3) + ", " + min3 + "]");
             }
 
-            case VP_Q_sc -> {
-                List<Object> valuesQ = new LinkedList<>();      // для построения графиков,            ось X
+            case VP_P_sc -> {
+                List<Object> valuesP = new LinkedList<>();      // для построения графиков,            ось X
                 List<Object> valuesVP1 = new LinkedList<>();    // для построения графика verProfit 1, ось Y
                 List<Object> valuesVP2 = new LinkedList<>();    // для построения графика verProfit 2, ось Y
                 List<Object> valuesVP3 = new LinkedList<>();    // для построения графика verProfit 3, ось Y
@@ -510,33 +510,33 @@ public class MainDynamo {
                 c = 100;
 
                 // увеличение c от 0 до 500
-                for (q = 0.01; q < 1.0; q += 0.01) {
-                    var sim1 = new DynamoPerformer(n, w1, r, q, c);
-                    var sim2 = new DynamoPerformer(n, w2, r, q, c);
-                    var sim3 = new DynamoPerformer(n, w3, r, q, c);
+                for (p = 0.01; p < 1.0; p += 0.01) {
+                    var sim1 = new DynamoPerformer(n, w1, r, p, c);
+                    var sim2 = new DynamoPerformer(n, w2, r, p, c);
+                    var sim3 = new DynamoPerformer(n, w3, r, p, c);
                     
                     sim1.simulate(1_000_000, 1);
                     sim2.simulate(1_000_000, 1);
                     sim3.simulate(1_000_000, 1);
 
-                    valuesQ.add(q);
+                    valuesP.add(p);
                     valuesVP1.add(sim1.getAvgVerProfit());
                     valuesVP2.add(sim2.getAvgVerProfit());
                     valuesVP3.add(sim3.getAvgVerProfit());
 
-                    print("q = " + q + ", avgVerProfit [1] [2] [3] : [" + sim1.getAvgVerProfit() + 
+                    print("p = " + p + ", avgVerProfit [1] [2] [3] : [" + sim1.getAvgVerProfit() + 
                                                                   "] [" + sim2.getAvgVerProfit() + 
                                                                   "] [" + sim3.getAvgVerProfit() + "]");
                 }
 
-                CSVHandler.createCSV("outQ", valuesQ);
+                CSVHandler.createCSV("outP", valuesP);
                 CSVHandler.createCSV("outVP1", valuesVP1);
                 CSVHandler.createCSV("outVP2", valuesVP2);
                 CSVHandler.createCSV("outVP3", valuesVP3);
 
                 FigureSettings settings = new FigureSettings(3);
 
-                settings.setTitle("Графики verProfit в зависимости от вероятности q при разных w");
+                settings.setTitle("Графики verProfit в зависимости от вероятности p при разных w");
                 settings.setAxisX("Значение вероятности");
                 settings.setAxisY("verProfit, узлов");
 
@@ -546,24 +546,24 @@ public class MainDynamo {
 
                 settings.saveJSON();
 
-                LinearFigure.plot("outQ", "outVP1", "outVP2", "outVP3");
+                LinearFigure.plot("outP", "outVP1", "outVP2", "outVP3");
 
-                // ======== вычисление verProfit в зависимости от w при разных q =================
+                // ======== вычисление verProfit в зависимости от w при разных p =================
 
                 List<Object> valuesW = new LinkedList<>();              
                 valuesVP1.clear();
                 valuesVP2.clear();
                 valuesVP3.clear();
 
-                double q1 = 0.05;
-                double q2 = 0.15;
-                double q3 = 0.30;
+                double p1 = 0.05;
+                double p2 = 0.15;
+                double p3 = 0.30;
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
-                    var sim1 = new DynamoPerformer(n, w, r, q1, c);
-                    var sim2 = new DynamoPerformer(n, w, r, q2, c);
-                    var sim3 = new DynamoPerformer(n, w, r, q3, c);
+                    var sim1 = new DynamoPerformer(n, w, r, p1, c);
+                    var sim2 = new DynamoPerformer(n, w, r, p2, c);
+                    var sim3 = new DynamoPerformer(n, w, r, p3, c);
                     
                     sim1.simulate(1_000_000, 1);
                     sim2.simulate(1_000_000, 1);
@@ -586,13 +586,13 @@ public class MainDynamo {
 
                 FigureSettings settings2 = new FigureSettings(3);
 
-                settings2.setTitle("Графики verProfit в зависимости от размера кворума w при разных q");
+                settings2.setTitle("Графики verProfit в зависимости от размера кворума w при разных p");
                 settings2.setAxisX("Размер кворума записи w, слотов");
                 settings2.setAxisY("verProfit, узлов");
 
-                settings2.addGraphicParameters("q = " + q1, "k", "-", "o", 0);
-                settings2.addGraphicParameters("q = " + q2, "r", "-", "o", 0);
-                settings2.addGraphicParameters("q = " + q3, "g", "-", "o", 0);
+                settings2.addGraphicParameters("p = " + p1, "k", "-", "o", 0);
+                settings2.addGraphicParameters("p = " + p2, "r", "-", "o", 0);
+                settings2.addGraphicParameters("p = " + p3, "g", "-", "o", 0);
 
                 settings2.saveJSON();
 
@@ -600,7 +600,7 @@ public class MainDynamo {
             }
 
             /**
-             * График среднего возраста информации от увеличения w при постоянных n, r, q
+             * График среднего возраста информации от увеличения w при постоянных n, r, p
              * для случая, когда чтение происходит только во время задержки
              */
             case AoI_W_ReadC -> {
@@ -610,12 +610,12 @@ public class MainDynamo {
                 // параметры системы
                 n = 100;
                 r = 20;
-                q = 0.01;
+                p = 0.01;
                 c = 100;
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
-                    var sim = new DynamoPerformer(n, w, r, q, c);
+                    var sim = new DynamoPerformer(n, w, r, p, c);
                     sim.simulateReadC(100_000, 1);
 
                     valuesW.add(w);
@@ -626,10 +626,10 @@ public class MainDynamo {
                 CSVHandler.createCSV("outY", valuesAoI);
 
                 FigureSettings settings = new FigureSettings(1);
-                settings.setTitle("График среднего возраста информации при увеличении w (чтение только во время задержки)");
+                settings.setTitle("График AoI при увеличении w (чтение только во время задержки)");
                 settings.setAxisX("w");
                 settings.setAxisY("AoI");
-                settings.addGraphicParameters("p = " + q, "k", "-", "o", 0);
+                settings.addGraphicParameters("p = " + p, "k", "-", "o", 0);
                 settings.saveJSON();
 
                 LinearFigure.plot("outX", "outY");

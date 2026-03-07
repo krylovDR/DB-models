@@ -7,7 +7,7 @@ public class DynamoBase implements IDynamo {
     private int n;      // количество узлов в системе
     private int w;      // размер кворума записи
     private int r;      // размер кворума чтения
-    private double q;   // вероятность успешной записи
+    private double p;   // вероятность успешной записи
     private int c;      // количество слотов задержки инициализации нового обновления
 
     private final ArrayList<Node> nodes;    // все узлы
@@ -25,20 +25,20 @@ public class DynamoBase implements IDynamo {
      * @param n - общее количество узлов,
      * @param w - количество узлов в кворуме записи
      * @param r - количество узлов в кворуме чтения
-     * @param q - вероятность успешной записи на отдельный узел
+     * @param p - вероятность успешной записи на отдельный узел
      * @param c - количество слотов задержки инициализации нового обновления
      */
-    public DynamoBase (int n, int w, int r, double q, int c) {
+    public DynamoBase (int n, int w, int r, double p, int c) {
         if (n <= 0) throw new RuntimeException("Error: expected n > 0");
         if (w <= 0 || w > n) throw new RuntimeException("Error: expected 0 < w <= n");
         if (r <= 0 || r > n) throw new RuntimeException("Error: expected 0 < r <= n");
-        if (q < 0.0 || q > 1.0) throw new RuntimeException("Error: expected 0 <= q <= 1");
+        if (p < 0.0 || p > 1.0) throw new RuntimeException("Error: expected 0 <= p <= 1");
         if (c < 0) throw new RuntimeException("Error: expected c >= 0");
         
         this.n = n;
         this.w = w;
         this.r = r;
-        this.q = q;
+        this.p = p;
         this.c = c;
 
         nodes = new ArrayList<>();
@@ -77,7 +77,7 @@ public class DynamoBase implements IDynamo {
      */
     @Override
     public boolean writeRequest(int id) {
-        if (q >= Math.random()) {
+        if (p >= Math.random()) {
             nodes.get(id).timeStamp = actualTimeStamp;
             return true;
         }
@@ -201,7 +201,7 @@ public class DynamoBase implements IDynamo {
         sb.append("[n = " + n + ", ");
         sb.append("w = " + w + ", ");
         sb.append("r = " + r + ", ");
-        sb.append("q = " + q + ", ");
+        sb.append("p = " + p + ", ");
         sb.append("c = " + c + "]");
 
         sb.append("\n\nActual timestamp: " + actualTimeStamp);

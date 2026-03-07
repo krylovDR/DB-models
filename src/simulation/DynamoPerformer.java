@@ -66,6 +66,42 @@ public final class DynamoPerformer {
 
 
     /**
+     * Метод для симуляции работы системы по слотам (чтение происходит только во время задержки).
+     *
+     * @param numSlots количество слотов симуляции
+     * @param readPeriod периодичность операции чтения в системе
+     */
+    public void simulateReadC(int numSlots, int readPeriod) {
+        if (numSlots < 1) throw new RuntimeException("numSlots must be >0");
+        if (readPeriod < 1) throw new RuntimeException("readPeriod must be >0");
+
+        int numExp = 0;
+        int curVersion = 0;     // текущая версия, нужна для верного подсчёта verProfit
+
+        for (int curSlot = 0; curSlot < numSlots; curSlot++) {
+            dBase.nextSlot();
+            dBase.doWrite();
+
+            if ((curSlot % readPeriod == 0) && dBase.getSlotsToWait() != 0) {
+                avgAoI += curSlot - dBase.doRead();     // подсчёт возраста информации
+                numExp++;
+            }
+            
+            if (curVersion != dBase.getActualVersion()) {
+                avgVerProfit += dBase.getVerProfit();    // подсчёт среднего verProfit
+                curVersion = dBase.getActualVersion();
+            }
+        }
+        avgAoI = avgAoI / numExp;
+        avgVersionAge = numSlots / dBase.getActualVersion();
+        avgVerProfit = avgVerProfit / dBase.getActualVersion();
+        avgFrameSize = Double.valueOf(numSlots) / Double.valueOf(dBase.getActualVersion())
+                - Double.valueOf(dBase.getC());
+        
+    }
+
+
+    /**
      * Метод симуляции одного слота работы системы.
      * @param id порядковый номер узла, с которого производится чтение
      * @return возраст информации на узле id

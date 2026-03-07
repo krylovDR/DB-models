@@ -190,6 +190,10 @@ public class DynamoBase implements IDynamo {
         return c;
     }
 
+    public int getSlotsToWait() {
+        return slotsToWait;
+    }
+
 
     @Override
     public String toString() {

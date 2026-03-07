@@ -1,22 +1,10 @@
 {
-  "title" : "Графики verProfit в зависимости от размера кворума w при разных q",
-  "axis_x_name" : "Размер кворума записи w, слотов",
-  "axis_y_name" : "verProfit, узлов",
+  "title" : "График среднего возраста информации при увеличении w (чтение только во время задержки)",
+  "axis_x_name" : "w",
+  "axis_y_name" : "AoI",
   "graphics" : [ {
-    "graphic_name" : "q = 0.05",
+    "graphic_name" : "p = 0.01",
     "color" : "k",
-    "style" : "-",
-    "marker_style" : "o",
-    "marker_size" : 0
-  }, {
-    "graphic_name" : "q = 0.15",
-    "color" : "r",
-    "style" : "-",
-    "marker_style" : "o",
-    "marker_size" : 0
-  }, {
-    "graphic_name" : "q = 0.3",
-    "color" : "g",
     "style" : "-",
     "marker_style" : "o",
     "marker_size" : 0

@@ -24,11 +24,14 @@ public class MainDynamo {
 
         AoI_C_sc,       // график AoI в зависимости от задержки c, а также наличие смещения минимума с
                         // изменением w при разных c
-        VP_Q_sc         // график verProfit в зависимости от q при разных w, а также verProfit с изменением
+        VP_Q_sc,        // график verProfit в зависимости от q при разных w, а также verProfit с изменением
                         // w при разных q
+
+        AoI_W_ReadC     // график AoI в зависимости от w для случая, когда чтение происходит только во
+                        // время задержки
     }
 
-    public static final Mode mode = Mode.AoI_C_sc;
+    public static final Mode mode = Mode.AoI_W_ReadC;
     
     public static void main(String[] args) {
         int n = 100;                // количество узлов в системе
@@ -385,9 +388,9 @@ public class MainDynamo {
                     var sim2 = new DynamoPerformer(n, w2, r, q, c);
                     var sim3 = new DynamoPerformer(n, w3, r, q, c);
                     
-                    sim1.simulate(100_000, 1);
-                    sim2.simulate(100_000, 1);
-                    sim3.simulate(100_000, 1);
+                    sim1.simulate(1_000_000, 1);
+                    sim2.simulate(1_000_000, 1);
+                    sim3.simulate(1_000_000, 1);
 
                     valuesC.add(c);
                     valuesAoI1.add(sim1.getAvgAOI());
@@ -435,9 +438,9 @@ public class MainDynamo {
                     var sim2 = new DynamoPerformer(n, w, r, q, c2);
                     var sim3 = new DynamoPerformer(n, w, r, q, c3);
                     
-                    sim1.simulate(100_000, 1);
-                    sim2.simulate(100_000, 1);
-                    sim3.simulate(100_000, 1);
+                    sim1.simulate(1_000_000, 1);
+                    sim2.simulate(1_000_000, 1);
+                    sim3.simulate(1_000_000, 1);
 
                     valuesW.add(w);
                     valuesAoI1.add(sim1.getAvgAOI());
@@ -562,9 +565,9 @@ public class MainDynamo {
                     var sim2 = new DynamoPerformer(n, w, r, q2, c);
                     var sim3 = new DynamoPerformer(n, w, r, q3, c);
                     
-                    sim1.simulate(200_000, 1);
-                    sim2.simulate(200_000, 1);
-                    sim3.simulate(200_000, 1);
+                    sim1.simulate(1_000_000, 1);
+                    sim2.simulate(1_000_000, 1);
+                    sim3.simulate(1_000_000, 1);
 
                     valuesW.add(w);
                     valuesVP1.add(sim1.getAvgVerProfit());
@@ -594,6 +597,42 @@ public class MainDynamo {
                 settings2.saveJSON();
 
                 LinearFigure.plot("outW", "outVP1", "outVP2", "outVP3");
+            }
+
+            /**
+             * График среднего возраста информации от увеличения w при постоянных n, r, q
+             * для случая, когда чтение происходит только во время задержки
+             */
+            case AoI_W_ReadC -> {
+                List<Object> valuesW = new LinkedList<>();          // для построения графиков, ось X
+                List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
+
+                // параметры системы
+                n = 100;
+                r = 20;
+                q = 0.01;
+                c = 100;
+
+                // увеличение w от 1 до n
+                for (w = 1; w <= n; w++) {
+                    var sim = new DynamoPerformer(n, w, r, q, c);
+                    sim.simulateReadC(100_000, 1);
+
+                    valuesW.add(w);
+                    valuesAoI.add(sim.getAvgAOI());
+                    print("w = " + w + ", avg AoI: " + sim.getAvgAOI());
+                }
+                CSVHandler.createCSV("outX", valuesW);
+                CSVHandler.createCSV("outY", valuesAoI);
+
+                FigureSettings settings = new FigureSettings(1);
+                settings.setTitle("График среднего возраста информации при увеличении w (чтение только во время задержки)");
+                settings.setAxisX("w");
+                settings.setAxisY("AoI");
+                settings.addGraphicParameters("p = " + q, "k", "-", "o", 0);
+                settings.saveJSON();
+
+                LinearFigure.plot("outX", "outY");
             }
         }
         

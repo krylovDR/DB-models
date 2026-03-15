@@ -24,14 +24,15 @@ public class MainDynamo {
 
         AoI_C_sc,       // график AoI в зависимости от задержки c, а также наличие смещения минимума с
                         // изменением w при разных c
-        VP_P_sc,        // график verProfit в зависимости от p при разных w, а также verProfit с изменением
-                        // w при разных p
+        VP_P_sc,        // график verProfit в зависимости от p при разных w
+        VP_W_sc,        // график verProfit с изменением w при разных p
+        VP_AoI_W_sc,    // график verProfit и AoI с изменением w
 
         AoI_W_ReadC     // график AoI в зависимости от w для случая, когда чтение происходит только во
                         // время задержки
     }
 
-    public static final Mode mode = Mode.AoI_W_ReadC;
+    public static final Mode mode = Mode.VP_AoI_W_sc;
     
     public static void main(String[] args) {
         int n = 100;                // количество узлов в системе
@@ -515,9 +516,9 @@ public class MainDynamo {
                     var sim2 = new DynamoPerformer(n, w2, r, p, c);
                     var sim3 = new DynamoPerformer(n, w3, r, p, c);
                     
-                    sim1.simulate(1_000_000, 1);
-                    sim2.simulate(1_000_000, 1);
-                    sim3.simulate(1_000_000, 1);
+                    sim1.simulate(100_000, 1);
+                    sim2.simulate(100_000, 1);
+                    sim3.simulate(100_000, 1);
 
                     valuesP.add(p);
                     valuesVP1.add(sim1.getAvgVerProfit());
@@ -547,14 +548,17 @@ public class MainDynamo {
                 settings.saveJSON();
 
                 LinearFigure.plot("outP", "outVP1", "outVP2", "outVP3");
+            }
 
-                // ======== вычисление verProfit в зависимости от w при разных p =================
-
+            case VP_W_sc -> {
                 List<Object> valuesW = new LinkedList<>();              
-                valuesVP1.clear();
-                valuesVP2.clear();
-                valuesVP3.clear();
+                List<Object> valuesVP1 = new LinkedList<>();    // для построения графика verProfit 1, ось Y
+                List<Object> valuesVP2 = new LinkedList<>();    // для построения графика verProfit 2, ось Y
+                List<Object> valuesVP3 = new LinkedList<>();    // для построения графика verProfit 3, ось Y
 
+                n = 100;
+                r = 10;
+                c = 100;
                 double p1 = 0.05;
                 double p2 = 0.15;
                 double p3 = 0.30;
@@ -565,9 +569,9 @@ public class MainDynamo {
                     var sim2 = new DynamoPerformer(n, w, r, p2, c);
                     var sim3 = new DynamoPerformer(n, w, r, p3, c);
                     
-                    sim1.simulate(1_000_000, 1);
-                    sim2.simulate(1_000_000, 1);
-                    sim3.simulate(1_000_000, 1);
+                    sim1.simulate(100_000, 1);
+                    sim2.simulate(100_000, 1);
+                    sim3.simulate(100_000, 1);
 
                     valuesW.add(w);
                     valuesVP1.add(sim1.getAvgVerProfit());
@@ -597,6 +601,48 @@ public class MainDynamo {
                 settings2.saveJSON();
 
                 LinearFigure.plot("outW", "outVP1", "outVP2", "outVP3");
+            }
+
+            case VP_AoI_W_sc -> {
+                List<Object> valuesW = new LinkedList<>();              
+                List<Object> valuesVP = new LinkedList<>();     // для построения графика verProfit, ось Y
+                List<Object> valuesAoI = new LinkedList<>();    // для построения графика AoI, ось Y
+
+                n = 100;
+                r = 10;
+                c = 100;
+                p = 0.4;
+
+                // увеличение w от 1 до n
+                for (w = 1; w <= n; w++) {
+                    var sim = new DynamoPerformer(n, w, r, p, c);
+                    
+                    sim.simulate(400_000, 1);
+
+                    valuesW.add(w);
+                    valuesVP.add(sim.getAvgVerProfit());
+                    valuesAoI.add(sim.getAvgAOI());
+
+                    print("w = " + w + ", [VP] [AoI] : [" + sim.getAvgVerProfit() + 
+                                                    "] [" + sim.getAvgAOI() + "]");
+                }
+
+                CSVHandler.createCSV("outW", valuesW);
+                CSVHandler.createCSV("outVP", valuesVP);
+                CSVHandler.createCSV("outAoI", valuesAoI);
+
+                FigureSettings settings = new FigureSettings(2);
+
+                settings.setTitle("Графики избыточности и AoI в зависимости от размера кворума записи w");
+                settings.setAxisX("Размер кворума записи w, слотов");
+                settings.setAxisY("Избыточность, узлов; AoI, слотов");
+
+                settings.addGraphicParameters("Избыточность", "k", "-", "o", 0);
+                settings.addGraphicParameters("AoI", "r", "-", "o", 0);
+
+                settings.saveJSON();
+
+                LinearFigure.plot("outW", "outVP", "outAoI");
             }
 
             /**

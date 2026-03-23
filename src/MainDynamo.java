@@ -32,7 +32,7 @@ public class MainDynamo {
                         // время задержки
     }
 
-    public static final Mode mode = Mode.VP_AoI_W_sc;
+    public static final Mode mode = Mode.AoI_W_ReadC;
     
     public static void main(String[] args) {
         int n = 100;                // количество узлов в системе
@@ -78,6 +78,11 @@ public class MainDynamo {
             case AoI_W -> {
                 List<Object> valuesW = new LinkedList<>();          // для построения графиков, ось X
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
+
+                n = 100;
+                r = 20;
+                p = 1.0;
+                c = 100;
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
@@ -611,13 +616,13 @@ public class MainDynamo {
                 n = 100;
                 r = 10;
                 c = 100;
-                p = 0.4;
+                p = 0.23;
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
                     var sim = new DynamoPerformer(n, w, r, p, c);
                     
-                    sim.simulate(400_000, 1);
+                    sim.simulate(1_000_000, 1);
 
                     valuesW.add(w);
                     valuesVP.add(sim.getAvgVerProfit());
@@ -633,12 +638,12 @@ public class MainDynamo {
 
                 FigureSettings settings = new FigureSettings(2);
 
-                settings.setTitle("Графики избыточности и AoI в зависимости от размера кворума записи w");
-                settings.setAxisX("Размер кворума записи w, слотов");
-                settings.setAxisY("Избыточность, узлов; AoI, слотов");
+                settings.setTitle("");
+                settings.setAxisX("Размер кворума записи w, узлы");
+                settings.setAxisY("Средняя избыточность обновлений, узлы");
 
-                settings.addGraphicParameters("Избыточность", "k", "-", "o", 0);
-                settings.addGraphicParameters("AoI", "r", "-", "o", 0);
+                settings.addGraphicParameters("Средняя избыточность обновлений", "k", "-", "o", 0);
+                settings.addGraphicParameters("Средний возраст информации", "r", "--", "o", 0);
 
                 settings.saveJSON();
 
@@ -654,10 +659,10 @@ public class MainDynamo {
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
 
                 // параметры системы
-                n = 100;
-                r = 20;
-                p = 0.01;
-                c = 100;
+                n = 10;
+                r = 2;
+                p = 1.0;
+                c = 10;
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {

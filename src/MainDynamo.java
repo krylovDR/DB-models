@@ -14,6 +14,7 @@ public class MainDynamo {
         AoI_W,          // график AoI в зависимости от w (кворума записи)
         AoI_W_2,        // 2 графика AoI в зависимости от w (при r = 5 и 15)
         AoI_W_3,        // график AoI в зависимости от w (при r == c)
+        AoI_W_teorW,    // 2 графика AoI в зависимости от w (моделирование и теория) !ЧТЕНИЕ ВО ВРЕМЯ C!
 
         VP_AoI_W,       // 2 графика verProfit (все обновившиеся узлы - W) и AoI в зависимости от w
         AoI_NODE,       // процесс изменения возраста информации на узле за 50 слотов
@@ -32,7 +33,7 @@ public class MainDynamo {
                         // время задержки
     }
 
-    public static final Mode mode = Mode.AoI_W_ReadC;
+    public static final Mode mode = Mode.AoI_W_teorW;
     
     public static void main(String[] args) {
         int n = 100;                // количество узлов в системе
@@ -659,15 +660,15 @@ public class MainDynamo {
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
 
                 // параметры системы
-                n = 10;
-                r = 2;
+                n = 100;
+                r = 20;
                 p = 1.0;
-                c = 10;
+                c = 100;
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
                     var sim = new DynamoPerformer(n, w, r, p, c);
-                    sim.simulateReadC(100_000, 1);
+                    sim.simulateReadC(500_000, 1);
 
                     valuesW.add(w);
                     valuesAoI.add(sim.getAvgAOI());
@@ -684,6 +685,39 @@ public class MainDynamo {
                 settings.saveJSON();
 
                 LinearFigure.plot("outX", "outY");
+            }
+
+            case AoI_W_teorW -> {
+                List<Object> valuesW = new LinkedList<>();          // для построения графиков, ось X
+                List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
+
+                // параметры системы
+                n = 100;
+                r = 20;
+                p = 0.01;
+                c = 100;
+
+                // увеличение w от 1 до n
+                for (w = 1; w <= n; w++) {
+                    var sim = new DynamoPerformer(n, w, r, p, c);
+                    sim.simulateReadC(500_000, 1);
+
+                    valuesW.add(w);
+                    valuesAoI.add(sim.getAvgAOI());
+                    print("w = " + w + ", avg AoI: " + sim.getAvgAOI());
+                }
+                CSVHandler.createCSV("outX", valuesW);
+                CSVHandler.createCSV("outY", valuesAoI);
+
+                FigureSettings settings = new FigureSettings(2);
+                settings.setTitle("");
+                settings.setAxisX("Размер кворума записи w, узлов");
+                settings.setAxisY("Средний возраст информации, слотов");
+                settings.addGraphicParameters("Моделирование", "r", "-", "o", 0);
+                settings.addGraphicParameters("Теоретический расчёт", "b", "--", "x", 3);
+                settings.saveJSON();
+
+                LinearFigure.plot("outX", "outY", "AoI_teor");
             }
         }
         

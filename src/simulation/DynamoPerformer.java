@@ -2,6 +2,8 @@ package simulation;
 
 import core.dynamo.DynamoBase;
 
+import java.util.ArrayList;
+
 public final class DynamoPerformer {
     private DynamoBase dBase;               // экземпляр Dynamo-РСХД
 
@@ -9,6 +11,7 @@ public final class DynamoPerformer {
     private double avgVersionAge;           // среднее время жизни обновления
     private double avgVerProfit;            // средняя избыточность обновлённых узлов
     private double avgFrameSize;            // средняя длина кадра
+    private ArrayList<Double> versionsProb; // вероятности p1...p_max чтения конкретных версий
 
     /**
      * Конструктор для симуляции.
@@ -26,6 +29,7 @@ public final class DynamoPerformer {
         avgVersionAge = 0.0;
         avgVerProfit = 0.0;
         avgFrameSize = 0.0;
+        versionsProb = new ArrayList<>();
     }
 
 
@@ -62,6 +66,9 @@ public final class DynamoPerformer {
         avgFrameSize = Double.valueOf(numSlots) / Double.valueOf(dBase.getActualVersion())
                 - Double.valueOf(dBase.getC());
         
+        for (var cur : dBase.getPStats()) {
+            versionsProb.add(Double.valueOf((cur / numExp) * 100));
+        }
     }
 
 
@@ -97,7 +104,10 @@ public final class DynamoPerformer {
         avgVerProfit = avgVerProfit / dBase.getActualVersion();
         avgFrameSize = Double.valueOf(numSlots) / Double.valueOf(dBase.getActualVersion())
                 - Double.valueOf(dBase.getC());
-        
+
+        for (var cur : dBase.getPStats()) {
+            versionsProb.addLast((cur * 100) / Double.valueOf(numExp));
+        }
     }
 
 
@@ -148,6 +158,11 @@ public final class DynamoPerformer {
 
     public double getAvgFrameSize() {
         return avgFrameSize;
+    }
+
+
+    public ArrayList<Double> getVersionsProb() {
+        return versionsProb;
     }
 
 

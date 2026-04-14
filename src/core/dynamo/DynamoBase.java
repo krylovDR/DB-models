@@ -13,6 +13,8 @@ public class DynamoBase implements IDynamo {
     private final ArrayList<Node> nodes;    // все узлы
     private int slotsToWait;                // счётчик слотов бездействия
 
+    private final ArrayList<Integer> pStats;  // количество чтений i-й версии в системе (для подсчёта вероятностей
+                                              // p1, p2, ..., p_max, - от более актульных версий к менее)
     private int actualTimeStamp;    // временная метка акутальной версии данных в системе
     private int verProfit;          // на сколько успешных записей было больше, чем w
     private int actualVersion;      // актуальный номер обновления (для расчёта среднего времени жизни обновления)
@@ -48,6 +50,7 @@ public class DynamoBase implements IDynamo {
 
         slotsToWait = 0;
 
+        pStats = new ArrayList<>();
         actualTimeStamp = 0;
         verProfit = 0;
         actualVersion = 0;
@@ -79,6 +82,7 @@ public class DynamoBase implements IDynamo {
     public boolean writeRequest(int id) {
         if (p >= Math.random()) {
             nodes.get(id).timeStamp = actualTimeStamp;
+            nodes.get(id).versionNum = actualVersion;
             return true;
         }
         return false;
@@ -100,8 +104,9 @@ public class DynamoBase implements IDynamo {
         }
 
         if (isUpdateComplete()) {
-            actualVersion++;            // номер текущего обновления
-            slotsToWait = c;            // начало задержки инициализации будущего обновления
+            actualVersion++;           // номер текущего обновления
+            pStats.add(0);          // добавление новой версии, которая может быть получена чтением
+            slotsToWait = c;          // начало задержки инициализации будущего обновления
         }
     }
 
@@ -121,10 +126,18 @@ public class DynamoBase implements IDynamo {
         Collections.shuffle(mixedID);
 
         int max = 0;
+        int readedVersionNum = 0;   // номер версии, которую возвратит операция чтения
+
         for (int i = 0; i < r; i++) {
             int curTS = readRequest(mixedID.get(i));
-            if (curTS > max) max = curTS;
+            if (curTS > max) {
+                max = curTS;
+                readedVersionNum = nodes.get(mixedID.get(i)).versionNum;  // для расчёта вероятностей p1...p_max
+            }
         }
+        pStats.set(pStats.size() - readedVersionNum - 1,
+                   pStats.get(pStats.size() - readedVersionNum - 1) + 1);  // считаем чтение конкретной версии
+
         return max;
     }
 
@@ -194,6 +207,10 @@ public class DynamoBase implements IDynamo {
         return slotsToWait;
     }
 
+    public ArrayList<Integer> getPStats() {
+        return pStats;
+    }
+
 
     @Override
     public String toString() {
@@ -218,17 +235,19 @@ public class DynamoBase implements IDynamo {
 
     // класс для описания отдельного узла
     private static class Node {
-        private int id;         // номер узла
-        private int timeStamp;  // временная метка хранящегося обновления
+        private int id;             // номер узла
+        private int timeStamp;      // временная метка хранящегося обновления
+        private int versionNum;     // порядковый номер хранимого обновления
 
         private Node(int id) {
             this.id = id;
             timeStamp = -1;
+            versionNum = -1;
         }
 
         @Override
         public String toString() {
-            return "id: " + id + ", timeStamp: " + timeStamp;
+            return "id: " + id + ", timeStamp: " + timeStamp + ", versionNum: " + versionNum;
         }
     }
 }

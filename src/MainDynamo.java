@@ -1,5 +1,6 @@
 
 import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import graphics.FigureSettings;
@@ -15,6 +16,8 @@ public class MainDynamo {
         AoI_W_2,        // 2 графика AoI в зависимости от w (при r = 5 и 15)
         AoI_W_3,        // график AoI в зависимости от w (при r == c)
         AoI_W_teorW,    // 2 графика AoI в зависимости от w (моделирование и теория) !ЧТЕНИЕ ВО ВРЕМЯ C!
+        AoI_W_teorW_2,  // 3 графика AoI в зависимости от w (моделирование, теория и расчёт через вероятности)
+                        // !ЧТЕНИЕ ВО ВРЕМЯ C!
 
         VP_AoI_W,       // 2 графика verProfit (все обновившиеся узлы - W) и AoI в зависимости от w
         AoI_NODE,       // процесс изменения возраста информации на узле за 50 слотов
@@ -29,11 +32,13 @@ public class MainDynamo {
         VP_W_sc,        // график verProfit с изменением w при разных p
         VP_AoI_W_sc,    // график verProfit и AoI с изменением w
 
-        AoI_W_ReadC     // график AoI в зависимости от w для случая, когда чтение происходит только во
+        AoI_W_ReadC,    // график AoI в зависимости от w для случая, когда чтение происходит только во
                         // время задержки
+        VER_PROBS       // расчёт среднего возраста информации (теория) и вероятностей чтения отдельных версий
+                        // операцией чтения
     }
 
-    public static final Mode mode = Mode.AoI_W_teorW;
+    public static final Mode mode = Mode.AoI_W_teorW_2;
     
     public static void main(String[] args) {
         int n = 100;                // количество узлов в системе
@@ -687,6 +692,11 @@ public class MainDynamo {
                 LinearFigure.plot("outX", "outY");
             }
 
+            /**
+             * График среднего возраста информации от увеличения w при постоянных n, r, p
+             * для случая, когда чтение происходит только во время задержки (и график теоретического AoI при
+             * строгом кворуме)
+             */
             case AoI_W_teorW -> {
                 List<Object> valuesW = new LinkedList<>();          // для построения графиков, ось X
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
@@ -719,8 +729,87 @@ public class MainDynamo {
 
                 LinearFigure.plot("outX", "outY", "AoI_teor");
             }
+
+            case AoI_W_teorW_2 -> {
+                List<Object> valuesW = new LinkedList<>();               // для построения графиков, ось X
+                List<Object> valuesAoI = new LinkedList<>();             // для построения графика AoI, ось Y
+                List<Object> valuesTheorAoI = new LinkedList<>();        // для построения графика AoI (теория), ось Y
+
+                // параметры системы
+                n = 100;
+                r = 20;
+                p = 0.01;
+                c = 100;
+
+                // увеличение w от 1 до n
+                for (w = 1; w <= n; w++) {
+                    var sim = new DynamoPerformer(n, w, r, p, c);
+                    sim.simulateReadC(500_000, 1);
+
+                    valuesW.add(w);
+                    valuesAoI.add(sim.getAvgAOI());
+                    valuesTheorAoI.add(calculateAoI(n, w, r, p, c, sim.getAvgFrameSize(), sim.getVersionsProb()));
+                    print("w = " + w + ", avg AoI: " + sim.getAvgAOI());
+                }
+                CSVHandler.createCSV("outX", valuesW);
+                CSVHandler.createCSV("outY", valuesAoI);
+                CSVHandler.createCSV("outY2", valuesTheorAoI);
+
+                FigureSettings settings = new FigureSettings(3);
+                settings.setTitle("");
+                settings.setAxisX("Размер кворума записи w, узлов");
+                settings.setAxisY("Средний возраст информации, слотов");
+                settings.addGraphicParameters("Моделирование", "r", "-", "o", 0);
+                settings.addGraphicParameters("Теоретический расчёт (СК)", "b", "--", "x", 3);
+                settings.addGraphicParameters("Теоретический расчёт (new)", "g", "-", "o", 0);
+                settings.saveJSON();
+
+                LinearFigure.plot("outX", "outY", "AoI_teor", "outY2");
+            }
+
+            /**
+             * Расчёт среднего возраста информации (моделирование и формула), 
+             * распределение вероятностей чтения каждой версии операцией чтения
+             */
+            case VER_PROBS -> {
+
+                // параметры системы
+                n = 100;
+                w = 10;
+                r = 20;
+                p = 0.01;
+                c = 100;
+
+                var sim = new DynamoPerformer(n, w, r, p, c);
+                sim.simulateReadC(1_000_000, 1);
+
+                print("[n = " + n + ", w = " + w + ", r = " + r + ", p = " + p + ", c = " + c + "]\n");
+
+                print("AoI: " + sim.getAvgAOI());
+                print("AoI theoretical: " + calculateAoI(n, w, r, p, c, sim.getAvgFrameSize(), sim.getVersionsProb()));
+                
+                print("\nverProb:");
+                int i = 0;
+                for (Double cur : sim.getVersionsProb()) {
+                    print("p_" + i + " = " + cur);
+                    i++;
+
+                    if (i == 100) break;
+                }
+            }
         }
         
+    }
+
+    public static double calculateAoI(int n, int w, int r, double p, int c, double mu, ArrayList<Double> verP) {
+        double AoI = mu + ((c - 1) / 2);
+
+        for (int i = 1; i < verP.size(); i++) {
+            if (verP.get(i) == 0.0) continue;
+
+            AoI += verP.get(i) * (i - 1) * (mu + c);
+        }
+        return AoI;
     }
 
     public static void print(Object o) {

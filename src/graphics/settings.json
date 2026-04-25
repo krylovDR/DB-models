@@ -9,16 +9,10 @@
     "marker_style" : "o",
     "marker_size" : 0
   }, {
-    "graphic_name" : "Теоретический расчёт (СК)",
+    "graphic_name" : "Теоретический расчёт (new)",
     "color" : "b",
     "style" : "--",
     "marker_style" : "x",
     "marker_size" : 3
-  }, {
-    "graphic_name" : "Теоретический расчёт (new)",
-    "color" : "g",
-    "style" : "-",
-    "marker_style" : "o",
-    "marker_size" : 0
   } ]
 }

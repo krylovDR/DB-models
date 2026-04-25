@@ -106,7 +106,7 @@ public final class DynamoPerformer {
                 - Double.valueOf(dBase.getC());
 
         for (var cur : dBase.getPStats()) {
-            versionsProb.addLast((cur * 100) / Double.valueOf(numExp));
+            versionsProb.addLast(cur / Double.valueOf(numExp));
         }
     }
 

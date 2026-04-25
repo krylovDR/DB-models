@@ -737,9 +737,9 @@ public class MainDynamo {
 
                 // параметры системы
                 n = 100;
-                r = 20;
-                p = 0.01;
-                c = 100;
+                r = 5;
+                p = 0.3;
+                c = 120;
 
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
@@ -755,16 +755,15 @@ public class MainDynamo {
                 CSVHandler.createCSV("outY", valuesAoI);
                 CSVHandler.createCSV("outY2", valuesTheorAoI);
 
-                FigureSettings settings = new FigureSettings(3);
+                FigureSettings settings = new FigureSettings(2);
                 settings.setTitle("");
                 settings.setAxisX("Размер кворума записи w, узлов");
                 settings.setAxisY("Средний возраст информации, слотов");
                 settings.addGraphicParameters("Моделирование", "r", "-", "o", 0);
-                settings.addGraphicParameters("Теоретический расчёт (СК)", "b", "--", "x", 3);
-                settings.addGraphicParameters("Теоретический расчёт (new)", "g", "-", "o", 0);
+                settings.addGraphicParameters("Теоретический расчёт (new)", "b", "--", "x", 3);
                 settings.saveJSON();
 
-                LinearFigure.plot("outX", "outY", "AoI_teor", "outY2");
+                LinearFigure.plot("outX", "outY", "outY2");
             }
 
             /**
@@ -802,12 +801,12 @@ public class MainDynamo {
     }
 
     public static double calculateAoI(int n, int w, int r, double p, int c, double mu, ArrayList<Double> verP) {
-        double AoI = mu + ((c - 1) / 2);
+        double AoI = mu + ((c - 1) / 2.0);
 
         for (int i = 1; i < verP.size(); i++) {
             if (verP.get(i) == 0.0) continue;
 
-            AoI += verP.get(i) * (i - 1) * (mu + c);
+            AoI += verP.get(i) * i * (mu + c);
         }
         return AoI;
     }

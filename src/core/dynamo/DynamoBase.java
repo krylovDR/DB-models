@@ -135,8 +135,20 @@ public class DynamoBase implements IDynamo {
                 readedVersionNum = nodes.get(mixedID.get(i)).versionNum;  // для расчёта вероятностей p1...p_max
             }
         }
-        pStats.set(pStats.size() - readedVersionNum - 1,
-                   pStats.get(pStats.size() - readedVersionNum - 1) + 1);  // считаем чтение конкретной версии
+
+        if (readedVersionNum > 0) {
+            int index = readedVersionNum - 1;
+            
+            if (index < pStats.size()) {
+                pStats.set(index, pStats.get(index) + 1);
+            } else {
+                // на случай рассинхронизации – добавить недостающие элементы
+                while (pStats.size() <= index) {
+                    pStats.add(0);
+                }
+                pStats.set(index, 1);
+            }
+        }
 
         return max;
     }

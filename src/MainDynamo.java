@@ -57,7 +57,7 @@ public class MainDynamo {
             AoI_THREADS_INFO    // многопоточное вычисление AoI с отслеживанием прогресса
     }
 
-    public static final Mode mode = Mode.VER_PROBS;
+    public static final Mode mode = Mode.AoI_W;
     
     public static void main(String[] args) {
         int n = 100;                // количество узлов в системе
@@ -1016,6 +1016,10 @@ public class MainDynamo {
         return AoI;
     }
 
+
+    /*
+    * Вывод строки состояния в реальном времени
+    */
     public static void printStatus(String info, int from, int to) {
         double progress = (double) from / to * 100.0;
         int filled = (int) (progress);        // длина заполненной части (макс. 100)

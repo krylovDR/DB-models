@@ -1,11 +1,14 @@
 package io;
 
 import com.opencsv.CSVWriter;
+
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
 public class CSVHandler {
+    public static final String PATH = "results/";
 
     /**
      * Запись данных {@code values} в {@code filename}.csv файл.
@@ -14,7 +17,12 @@ public class CSVHandler {
      * @param values - данные подлежащие записи в файл
      */
     public static void createCSV(String filename, List<Object> values) {
-        try (CSVWriter writer = new CSVWriter(new FileWriter(filename + ".csv"))) {
+        File dir = new File(PATH);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        try (CSVWriter writer = new CSVWriter(new FileWriter(PATH + filename + ".csv"))) {
             for (Object value : values) {
                 writer.writeNext(new String[] {value.toString()});
             }

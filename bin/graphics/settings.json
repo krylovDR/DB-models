@@ -1,18 +1,12 @@
 {
-  "title" : "",
-  "axis_x_name" : "Размер кворума записи w, узлов",
-  "axis_y_name" : "Средний возраст информации, слотов",
+  "title" : "График AoI при увеличении w (чтение только во время задержки)",
+  "axis_x_name" : "w",
+  "axis_y_name" : "AoI",
   "graphics" : [ {
-    "graphic_name" : "Моделирование",
-    "color" : "r",
+    "graphic_name" : "p = 0.01",
+    "color" : "k",
     "style" : "-",
     "marker_style" : "o",
     "marker_size" : 0
-  }, {
-    "graphic_name" : "Теоретический расчёт (new)",
-    "color" : "b",
-    "style" : "--",
-    "marker_style" : "x",
-    "marker_size" : 3
   } ]
 }

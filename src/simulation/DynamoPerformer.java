@@ -59,9 +59,13 @@ public final class DynamoPerformer {
                 avgVerProfit += dBase.getVerProfit();    // подсчёт среднего verProfit
                 curVersion = dBase.getActualVersion();
             }
+
+            //printStatus(numSlots);
         }
+        //System.out.println();
+        
         avgAoI = avgAoI / numExp;
-        avgVersionAge = numSlots / dBase.getActualVersion();
+        avgVersionAge = dBase.getActualVersion() == 0 ? numSlots : numSlots / dBase.getActualVersion();
         avgVerProfit = avgVerProfit / dBase.getActualVersion();
         avgFrameSize = Double.valueOf(numSlots) / Double.valueOf(dBase.getActualVersion())
                 - Double.valueOf(dBase.getC());
@@ -98,15 +102,19 @@ public final class DynamoPerformer {
                 avgVerProfit += dBase.getVerProfit();    // подсчёт среднего verProfit
                 curVersion = dBase.getActualVersion();
             }
+
+            printStatus(numSlots);
         }
+        System.out.println();
+        
         avgAoI = avgAoI / numExp;
-        avgVersionAge = numSlots / dBase.getActualVersion();
+        avgVersionAge = dBase.getActualVersion() == 0 ? numSlots : numSlots / dBase.getActualVersion();
         avgVerProfit = avgVerProfit / dBase.getActualVersion();
         avgFrameSize = Double.valueOf(numSlots) / Double.valueOf(dBase.getActualVersion())
                 - Double.valueOf(dBase.getC());
 
         for (var cur : dBase.getPStats()) {
-            versionsProb.addLast(cur / Double.valueOf(numExp));
+            versionsProb.add(cur / Double.valueOf(numExp));
         }
     }
 
@@ -163,6 +171,20 @@ public final class DynamoPerformer {
 
     public ArrayList<Double> getVersionsProb() {
         return versionsProb;
+    }
+
+
+    public void printStatus(int numSlots) {
+        double progress = (double) dBase.getCurSlot() / numSlots * 100.0;
+        int filled = (int) (progress);   // длина заполненной части (макс. 50)
+        int empty = 100 - filled;             // длина пустой части
+
+        // Формируем полосу прогресса длиной 50 символов
+        String bar = "■".repeat(filled) + " ".repeat(empty);
+
+        // Выводим всё в одной строке с двумя спецификаторами: %f и %s
+        System.out.printf("\rProgress: %6.2f%% [%s]", progress, bar);
+        System.out.flush();
     }
 
 

@@ -54,10 +54,12 @@ public class MainDynamo {
             AoI_SPLIT,          // расчёт среднего возраста информации используя большее количество экспериментов и
                                 // меньшее количество слотов
             AoI_THREADS,        // многопоточное вычисление среднего возраста информации для различных наборов параметров
-            AoI_THREADS_INFO    // многопоточное вычисление AoI с отслеживанием прогресса
+            AoI_THREADS_INFO,   // многопоточное вычисление AoI с отслеживанием прогресса
+
+            AoI_NO_VP           // рассчёт среднего возраста, где исключена избыточность обновлений (число записей нового обновления <w)
     }
 
-    public static final Mode mode = Mode.AoI_W;
+    public static final Mode mode = Mode.AoI_NO_VP;
     
     public static void main(String[] args) {
         int n = 100;                // количество узлов в системе
@@ -997,6 +999,30 @@ public class MainDynamo {
                     }
                     CSVHandler.createCSV(cur.toString(), valuesAoI);
                 }
+            }
+
+            /**
+             * Рассчёт среднего возраста, где исключена избыточность обновлений (число записей нового обновления <w)
+             */
+            case AoI_NO_VP -> {
+                
+                // параметры системы
+                n = 100;
+                r = 20;
+                p = 0.01;
+                c = 150;
+
+                List<Object> valuesAoI = new LinkedList<>();
+
+                // увеличение w от 1 до n
+                for (w = 1; w <= n; w++) {
+                    var sim = new DynamoPerformer(n, w, r, p, c);
+                    sim.simulateNoVP(1_000_000, 1);
+
+                    valuesAoI.add(sim.getAvgAOI());
+                    print("w = " + w + ", avg AoI: " + sim.getAvgAOI());
+                }
+                CSVHandler.createCSV("AoI_values", valuesAoI);
             }
         }
     }

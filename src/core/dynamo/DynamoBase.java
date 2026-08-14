@@ -72,6 +72,20 @@ public class DynamoBase implements IDynamo {
 
 
     /**
+     * Однократное моделирование всего процесса записи на узлы кворума W внутри слота
+     * (избыточность обновлений исключена, возможное число записей <w).
+     */
+    public void doWriteNoVP() {
+        if (slotsToWait != 0) return;
+
+        for (int i = 0; i < n; i++) {
+            if (isUpdateComplete()) return;
+            writeRequest(i);
+        }
+    }
+
+
+    /**
      * Отправляет запрос на запись в узел id.
      *
      * @param id номер узла, куда отправится запрос

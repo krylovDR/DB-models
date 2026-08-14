@@ -120,6 +120,50 @@ public final class DynamoPerformer {
 
 
     /**
+     * Метод для симуляции работы системы по слотам без избыточности обновлений (количество записей = w)
+     * Чтение происходит только во время задержки.
+     *
+     * @param numSlots количество слотов симуляции
+     * @param readPeriod периодичность операции чтения в системе
+     */
+    public void simulateNoVP(int numSlots, int readPeriod) {
+        if (numSlots < 1) throw new RuntimeException("numSlots must be >0");
+        if (readPeriod < 1) throw new RuntimeException("readPeriod must be >0");
+
+        int numExp = 0;
+        int curVersion = 0;     // текущая версия, нужна для верного подсчёта verProfit
+
+        for (; dBase.getCurSlot() < numSlots;) {
+            dBase.nextSlot();
+            dBase.doWriteNoVP();
+
+            if ((dBase.getCurSlot() % readPeriod == 0) && dBase.getSlotsToWait() != 0) {
+                avgAoI += dBase.getCurSlot() - dBase.doRead();     // подсчёт возраста информации
+                numExp++;
+            }
+            
+            if (curVersion != dBase.getActualVersion()) {
+                avgVerProfit += dBase.getVerProfit();    // подсчёт среднего verProfit
+                curVersion = dBase.getActualVersion();
+            }
+
+            //printStatus(numSlots);
+        }
+        //System.out.println();
+        
+        avgAoI = avgAoI / numExp;
+        avgVersionAge = dBase.getActualVersion() == 0 ? numSlots : numSlots / dBase.getActualVersion();
+        avgVerProfit = avgVerProfit / dBase.getActualVersion();
+        avgFrameSize = Double.valueOf(numSlots) / Double.valueOf(dBase.getActualVersion())
+                - Double.valueOf(dBase.getC());
+
+        for (var cur : dBase.getPStats()) {
+            versionsProb.add(cur / Double.valueOf(numExp));
+        }
+    }
+
+
+    /**
      * Метод симуляции одного слота работы системы.
      * @param id порядковый номер узла, с которого производится чтение
      * @return возраст информации на узле id

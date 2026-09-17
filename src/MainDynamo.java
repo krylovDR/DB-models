@@ -59,7 +59,7 @@ public class MainDynamo {
             AoI_NO_VP           // рассчёт среднего возраста, где исключена избыточность обновлений (число записей нового обновления <w)
     }
 
-    public static final Mode mode = Mode.AoI_NO_VP;
+    public static final Mode mode = Mode.AoI_W_ReadC;
     
     public static void main(String[] args) {
         int n = 100;                // количество узлов в системе
@@ -157,7 +157,8 @@ public class MainDynamo {
                 // увеличение w от 1 до n при первом значении r
                 for (w = 1; w <= n; w++) {
                     var sim = new DynamoPerformer(n, w, r, p, c);
-                    sim.simulateReadC(100_000, 1);
+                    sim.readAtLatency(true);
+                    sim.simulate(100_000, 1);
 
                     valuesW.add(w);
                     valuesAoI1.add(sim.getAvgAOI());
@@ -169,7 +170,8 @@ public class MainDynamo {
                 // увеличение w от 1 до n при втором значении r
                 for (w = 1; w <= n; w++) {
                     var sim = new DynamoPerformer(n, w, r, p, c);
-                    sim.simulateReadC(100_000, 1);
+                    sim.readAtLatency(true);
+                    sim.simulate(100_000, 1);
 
                     valuesAoI2.add(sim.getAvgAOI());
                     print("w = " + w + ", avg AoI: " + sim.getAvgAOI());
@@ -301,7 +303,8 @@ public class MainDynamo {
                 c = 100;
 
                 var sim = new DynamoPerformer(n, w, r, p, c);
-                sim.simulateReadC(1_000_000, 1);
+                sim.readAtLatency(true);
+                sim.simulate(1_000_000, 1);
 
                 print("Средняя длина кадра при n = " + n + "; w = " + w + "; p = " + p);
                 print("avgFrameSize = " + sim.getAvgFrameSize());
@@ -334,16 +337,20 @@ public class MainDynamo {
                     var sim3 = new DynamoPerformer(n, w3, r, p, c);
                     var sim4 = new DynamoPerformer(n, w4, r, p, c);
                     
-                    sim1.simulateReadC(500_000, 1);
+                    sim1.readAtLatency(true);
+                    sim1.simulate(500_000, 1);
                     System.out.print("p = " + p + ";  1...");
 
-                    sim2.simulateReadC(500_000, 1);
+                    sim2.readAtLatency(true);
+                    sim2.simulate(500_000, 1);
                     System.out.print("2...");
 
-                    sim3.simulateReadC(500_000, 1);
+                    sim3.readAtLatency(true);
+                    sim3.simulate(500_000, 1);
                     System.out.print("3...");
 
-                    sim4.simulateReadC(500_000, 1);
+                    sim4.readAtLatency(true);
+                    sim4.simulate(500_000, 1);
                     System.out.println("4...");
 
                     valuesP.add(p);
@@ -391,7 +398,8 @@ public class MainDynamo {
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
                     var sim = new DynamoPerformer(n, w, r, p, c);
-                    sim.simulateReadC(100_000, 1);
+                    sim.readAtLatency(true);
+                    sim.simulate(100_000, 1);
 
                     valuesW.add(w);
                     valuesAoI.add(sim.getAvgAOI());
@@ -722,7 +730,8 @@ public class MainDynamo {
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
                     var sim = new DynamoPerformer(n, w, r, p, c);
-                    sim.simulateReadC(10_000, 1);
+                    sim.readAtLatency(true);
+                    sim.simulate(100_000, 1);
 
                     valuesW.add(w);
                     valuesAoI.add(sim.getAvgAOI());
@@ -758,7 +767,8 @@ public class MainDynamo {
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
                     var sim = new DynamoPerformer(n, w, r, p, c);
-                    sim.simulateReadC(500_000, 1);
+                    sim.readAtLatency(true);
+                    sim.simulate(500_000, 1);
 
                     valuesW.add(w);
                     valuesAoI.add(sim.getAvgAOI());
@@ -794,7 +804,8 @@ public class MainDynamo {
                 c = 100;
 
                 var sim = new DynamoPerformer(n, w, r, p, c);
-                sim.simulateReadC(1_000_000, 1);
+                sim.readAtLatency(true);
+                sim.simulate(1_000_000, 1);
 
                 print("[n = " + n + ", w = " + w + ", r = " + r + ", p = " + p + ", c = " + c + "]\n");
 
@@ -840,7 +851,8 @@ public class MainDynamo {
                         
                         for (int i = 0; i < numExp; i++) {
                             var sim = new DynamoPerformer(cur.n(), w, cur.r(), cur.p(), cur.c());
-                            sim.simulateReadC(numSlots, 1);
+                            sim.readAtLatency(true);
+                            sim.simulate(numSlots, 1);
                             
                             tempSum += sim.getAvgAOI();
                             printStatus("w = " + w, i, numExp);
@@ -889,7 +901,8 @@ public class MainDynamo {
                             double sum = 0.0;
                             for (int i = 0; i < numExp; i++) {
                                 var sim = new DynamoPerformer(cur.n(), wIndex, cur.r(), cur.p(), cur.c());
-                                sim.simulateReadC(numSlots, 1);
+                                sim.readAtLatency(true);
+                                sim.simulate(numSlots, 1);
                                 sum += sim.getAvgAOI();
                             }
                             double avg = sum / (double) numExp;
@@ -961,7 +974,8 @@ public class MainDynamo {
                             double sum = 0.0;
                             for (int i = 0; i < numExp; i++) {
                                 var sim = new DynamoPerformer(cur.n(), wIndex, cur.r(), cur.p(), cur.c());
-                                sim.simulateReadC(numSlots, 1);
+                                sim.readAtLatency(true);
+                                sim.simulate(numSlots, 1);
                                 sum += sim.getAvgAOI();
                             }
                             double avg = sum / (double) numExp;
@@ -1017,7 +1031,9 @@ public class MainDynamo {
                 // увеличение w от 1 до n
                 for (w = 1; w <= n; w++) {
                     var sim = new DynamoPerformer(n, w, r, p, c);
-                    sim.simulateNoVP(1_000_000, 1);
+                    sim.readAtLatency(true);
+                    sim.ignoreVP(true);
+                    sim.simulate(1_000_000, 1);
 
                     valuesAoI.add(sim.getAvgAOI());
                     print("w = " + w + ", avg AoI: " + sim.getAvgAOI());

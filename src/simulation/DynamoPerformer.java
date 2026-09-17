@@ -12,6 +12,10 @@ public final class DynamoPerformer {
     private double avgVerProfit;            // средняя избыточность обновлённых узлов
     private double avgFrameSize;            // средняя длина кадра
     private ArrayList<Double> versionsProb; // вероятности p1...p_max чтения конкретных версий
+    
+    private boolean showProgress;           // режим вывода прогресса симуляции в реальном времени
+    private boolean readAtLatency;          // режим чтения только во время задержки
+    private boolean ignoreVP;               // режим с отсутствием избыточности обновлений
 
     /**
      * Конструктор для симуляции.
@@ -30,6 +34,10 @@ public final class DynamoPerformer {
         avgVerProfit = 0.0;
         avgFrameSize = 0.0;
         versionsProb = new ArrayList<>();
+
+        showProgress = false;
+        readAtLatency = false;
+        ignoreVP = false;
     }
 
 
@@ -48,9 +56,18 @@ public final class DynamoPerformer {
 
         for (; dBase.getCurSlot() < numSlots;) {
             dBase.nextSlot();
-            dBase.doWrite();
 
-            if (dBase.getCurSlot() % readPeriod == 0) {
+            // чтение в зависимости от режима избыточности
+            if (ignoreVP) {
+                dBase.doWriteNoVP();
+            } else {
+                dBase.doWrite();
+            }
+
+            // проверка на режим чтения только во время задержки
+            if (dBase.getCurSlot() % readPeriod == 0 &&
+                    (readAtLatency ? dBase.getSlotsToWait() != 0 : true)) {
+                
                 avgAoI += dBase.getCurSlot() - dBase.doRead();     // подсчёт возраста информации
                 numExp++;
             }
@@ -60,9 +77,9 @@ public final class DynamoPerformer {
                 curVersion = dBase.getActualVersion();
             }
 
-            //printStatus(numSlots);
+            if (showProgress) printStatus(numSlots); // вывод прогресса в консоль
         }
-        //System.out.println();
+        if (showProgress) System.out.println();
         
         avgAoI = avgAoI / numExp;
         avgVersionAge = dBase.getActualVersion() == 0 ? numSlots : numSlots / dBase.getActualVersion();
@@ -70,93 +87,6 @@ public final class DynamoPerformer {
         avgFrameSize = Double.valueOf(numSlots) / Double.valueOf(dBase.getActualVersion())
                 - Double.valueOf(dBase.getC());
         
-        for (var cur : dBase.getPStats()) {
-            versionsProb.add(Double.valueOf((cur / numExp) * 100));
-        }
-    }
-
-
-    /**
-     * Метод для симуляции работы системы по слотам (чтение происходит только во время задержки).
-     *
-     * @param numSlots количество слотов симуляции
-     * @param readPeriod периодичность операции чтения в системе
-     */
-    public void simulateReadC(int numSlots, int readPeriod) {
-        if (numSlots < 1) throw new RuntimeException("numSlots must be >0");
-        if (readPeriod < 1) throw new RuntimeException("readPeriod must be >0");
-
-        int numExp = 0;
-        int curVersion = 0;     // текущая версия, нужна для верного подсчёта verProfit
-
-        for (; dBase.getCurSlot() < numSlots;) {
-            dBase.nextSlot();
-            dBase.doWrite();
-
-            if ((dBase.getCurSlot() % readPeriod == 0) && dBase.getSlotsToWait() != 0) {
-                avgAoI += dBase.getCurSlot() - dBase.doRead();     // подсчёт возраста информации
-                numExp++;
-            }
-            
-            if (curVersion != dBase.getActualVersion()) {
-                avgVerProfit += dBase.getVerProfit();    // подсчёт среднего verProfit
-                curVersion = dBase.getActualVersion();
-            }
-
-            printStatus(numSlots);
-        }
-        System.out.println();
-        
-        avgAoI = avgAoI / numExp;
-        avgVersionAge = dBase.getActualVersion() == 0 ? numSlots : numSlots / dBase.getActualVersion();
-        avgVerProfit = avgVerProfit / dBase.getActualVersion();
-        avgFrameSize = Double.valueOf(numSlots) / Double.valueOf(dBase.getActualVersion())
-                - Double.valueOf(dBase.getC());
-
-        for (var cur : dBase.getPStats()) {
-            versionsProb.add(cur / Double.valueOf(numExp));
-        }
-    }
-
-
-    /**
-     * Метод для симуляции работы системы по слотам без избыточности обновлений (количество записей = w)
-     * Чтение происходит только во время задержки.
-     *
-     * @param numSlots количество слотов симуляции
-     * @param readPeriod периодичность операции чтения в системе
-     */
-    public void simulateNoVP(int numSlots, int readPeriod) {
-        if (numSlots < 1) throw new RuntimeException("numSlots must be >0");
-        if (readPeriod < 1) throw new RuntimeException("readPeriod must be >0");
-
-        int numExp = 0;
-        int curVersion = 0;     // текущая версия, нужна для верного подсчёта verProfit
-
-        for (; dBase.getCurSlot() < numSlots;) {
-            dBase.nextSlot();
-            dBase.doWriteNoVP();
-
-            if ((dBase.getCurSlot() % readPeriod == 0) && dBase.getSlotsToWait() != 0) {
-                avgAoI += dBase.getCurSlot() - dBase.doRead();     // подсчёт возраста информации
-                numExp++;
-            }
-            
-            if (curVersion != dBase.getActualVersion()) {
-                avgVerProfit += dBase.getVerProfit();    // подсчёт среднего verProfit
-                curVersion = dBase.getActualVersion();
-            }
-
-            //printStatus(numSlots);
-        }
-        //System.out.println();
-        
-        avgAoI = avgAoI / numExp;
-        avgVersionAge = dBase.getActualVersion() == 0 ? numSlots : numSlots / dBase.getActualVersion();
-        avgVerProfit = avgVerProfit / dBase.getActualVersion();
-        avgFrameSize = Double.valueOf(numSlots) / Double.valueOf(dBase.getActualVersion())
-                - Double.valueOf(dBase.getC());
-
         for (var cur : dBase.getPStats()) {
             versionsProb.add(cur / Double.valueOf(numExp));
         }
@@ -208,17 +138,56 @@ public final class DynamoPerformer {
     }
 
 
+    /**
+     * Получение среднего значения размера кадра.
+     * @return {@code double} - среднее значение размера кадра (в слотах)
+     */
     public double getAvgFrameSize() {
         return avgFrameSize;
     }
 
 
+    /**
+     * Получение списка с вероятностями чтения последнего, предпоследнего и более старых версий данных.
+     * @return {@code ArrayList<Double>} - список вероятностей
+     */
     public ArrayList<Double> getVersionsProb() {
         return versionsProb;
     }
 
 
-    public void printStatus(int numSlots) {
+    /**
+     * Режим вывода прогресса симуляции в консоль
+     * @param value true - выводить, false - не выводить
+     */
+    public void showProgress(boolean value) {
+        showProgress = value;
+    }
+
+
+    /**
+     * Режим чтения данных только во время задержки c
+     * @param value true - только во время задержки, false - в любой момент
+     */
+    public void readAtLatency(boolean value) {
+        readAtLatency = value;
+    }
+
+
+    /**
+     * Режим работы системы без избыточности обновлений (число обновлённых узлов = w)
+     * @param value true - исключить избыточность, false - обновлений может быть больше чем w 
+     */
+    public void ignoreVP(boolean value) {
+        ignoreVP = value;
+    }
+
+
+    /**
+     * Метод вывода строки состояния процесса симуляции
+     * @param numSlots общее число слотов симуляции
+     */
+    private void printStatus(int numSlots) {
         double progress = (double) dBase.getCurSlot() / numSlots * 100.0;
         int filled = (int) (progress);   // длина заполненной части (макс. 50)
         int empty = 100 - filled;             // длина пустой части

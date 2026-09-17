@@ -1,9 +1,9 @@
 {
-  "title" : "График среднего возраста информации при увеличении w",
+  "title" : "График AoI при увеличении w (чтение только во время задержки)",
   "axis_x_name" : "w",
   "axis_y_name" : "AoI",
   "graphics" : [ {
-    "graphic_name" : "r = 5",
+    "graphic_name" : "p = 0.01",
     "color" : "k",
     "style" : "-",
     "marker_style" : "o",

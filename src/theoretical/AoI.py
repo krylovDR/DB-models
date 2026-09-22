@@ -1,3 +1,6 @@
+# Прога Ульяны. Нужна для построения графиков верхней оценки AoI (вычисляется здесь)
+# и AoI точного (из .csv файла - результат работы моделирующей программы)
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -9,7 +12,7 @@ r = 20
 c = 100
 p_success = 0.01
 
-# мат ожидание длины кадра реккурентная формула для геом распределения
+# Мат ожидание длины кадра реккурентная формула для геом распределения
 def theory_formula(w):
     mu = np.zeros((n + 1, n + 1), dtype=float)
 
@@ -62,25 +65,31 @@ def aoi_res(p, mu):
         res += p[i - 1] * (i - 1) * (mu + c)
     return res
 
-res = []
-res2 = []
-w_val = []
-for w in range(1, 101):
-    p_cur = probs(w)
-    mu = theory_formula(w)
-    mu2 = exp_distribution(n, w, p_success)
-    res.append(aoi_res(p_cur, mu))
-    res2.append(aoi_res(p_cur, mu2))
-    w_val.append(w)
 
-df = pd.read_csv("results\\Params[n=100, r=20, p=0.01, c=100].csv", header=None)
-model_001 = df[0].astype(float).to_numpy()
-plt.plot(w_val, res, color="r", label='Оценка AoI', marker="+")
-# plt.plot(w_val, res2, label='test_exp', marker="+")
-plt.plot(w_val, model_001, color="k", label='Имитационное моделирование')
+def main() -> None:
+    res = []
+    res2 = []
+    w_val = []
+    for w in range(1, 101):
+        p_cur = probs(w)
+        mu = theory_formula(w)
+        mu2 = exp_distribution(n, w, p_success)
+        res.append(aoi_res(p_cur, mu))
+        res2.append(aoi_res(p_cur, mu2))
+        w_val.append(w)
 
-plt.xlabel("w, узлов")
-plt.ylabel("Средний возраст информации, слотов")
-plt.legend()
-plt.grid(True)
-plt.show()
+    df = pd.read_csv("results\\Params[n=100, r=20, p=0.01, c=100].csv", header=None)
+    model_001 = df[0].astype(float).to_numpy()
+    plt.plot(w_val, res, color="r", label='Оценка AoI', marker="+")
+    # plt.plot(w_val, res2, label='test_exp', marker="+")
+    plt.plot(w_val, model_001, color="k", label='Имитационное моделирование')
+
+    plt.xlabel("w, узлов")
+    plt.ylabel("Средний возраст информации, слотов")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()

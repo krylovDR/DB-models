@@ -1,6 +1,12 @@
 
 import java.util.LinkedList;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -8,6 +14,7 @@ import graphics.FigureSettings;
 import graphics.LinearFigure;
 import io.CSVHandler;
 import simulation.DynamoPerformer;
+import theoretical.ScriptHandler;
 
 public class MainDynamo {
 
@@ -56,12 +63,15 @@ public class MainDynamo {
             AoI_THREADS,        // многопоточное вычисление среднего возраста информации для различных наборов параметров
             AoI_THREADS_INFO,   // многопоточное вычисление AoI с отслеживанием прогресса
 
-            AoI_NO_VP           // рассчёт среднего возраста, где исключена избыточность обновлений (число записей нового обновления <w)
+            AoI_NO_VP,          // рассчёт среднего возраста, где исключена избыточность обновлений (число записей нового обновления <w)
+
+            Wopt_N              // график оптимального размера кворума в зависимости от общего числа узлов в системе и
+                                // график AoI при оптимальном кворуме в зависимсоти от общего числа узлов в системе
     }
 
-    public static final Mode mode = Mode.AoI_W_ReadC;
+    public static final Mode mode = Mode.Wopt_N;
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         int n = 100;                // количество узлов в системе
         int w = 20;                 // количество узлов в кворуме записи
         int r = 20;                 // количество узлов в кворуме чтения
@@ -1039,6 +1049,111 @@ public class MainDynamo {
                     print("w = " + w + ", avg AoI: " + sim.getAvgAOI());
                 }
                 CSVHandler.createCSV("AoI_values", valuesAoI);
+            }
+
+            /**
+             * График оптимального размера кворума в зависимости от общего числа узлов в системе и
+             * график AoI при оптимальном кворуме в зависимсоти от общего числа узлов в системе
+             */
+            case Wopt_N -> {
+
+                // параметры системы
+                int maxN = 300;
+                r = 20;
+                p = 0.01;
+                c = 100;
+
+                int shift = 3;  // размер интервала рассчёта относительно Wopt
+
+                // запуск скрипта для рассчёта теоретических значений
+                ScriptHandler.runWopt(Integer.toString(maxN),
+                                      Integer.toString(r),
+                                      Double.toString(p),
+                                      Integer.toString(c));
+
+                // теоретические значения W_opt
+                List<Object> Wopt_theor = new LinkedList<>(
+                    Files.readAllLines(Paths.get("results\\Wopt_theor.txt"), StandardCharsets.UTF_8));
+
+                // теоретические значение AoI_opt
+                List<Object> AoIopt_theor = new LinkedList<>(
+                    Files.readAllLines(Paths.get("results\\AoIopt_theor.txt"), StandardCharsets.UTF_8));
+
+
+                // списки для хранения результатов моделирования
+                List<Object> Wopt = new LinkedList<>();             // для построения графиков W_opt от n, ось Y
+                List<Object> valuesN = new LinkedList<>();          // для построения графика, ось X
+                List<Object> AoIopt = new LinkedList<>();           // для построения графика AoI_opt, ось Y
+
+
+                // частный случай (первый элемент списков)
+                Wopt.add(1);
+                valuesN.add(1);
+
+                var firstSim = new DynamoPerformer(1, 1, 1, p, c);
+                firstSim.readAtLatency(true);
+                firstSim.simulate(1_000_000, 1);
+
+                AoIopt.add(firstSim.getAvgAOI());
+                
+
+                // рассчёт моделированием
+                for (n = 2; n <= maxN; n++) {
+                    List<Object> tempAoI = new LinkedList<>();
+                    List<Object> tempW = new LinkedList<>();
+
+                    // рассчёт инервала рассчёта
+                    int startW = Integer.parseInt((String)Wopt_theor.get(n - 1)) - shift < 1 ? 1 :
+                        Integer.parseInt((String)Wopt_theor.get(n - 1)) - shift;
+
+                    int endW = Integer.parseInt((String)Wopt_theor.get(n - 1)) + shift > n ? n :
+                        Integer.parseInt((String)Wopt_theor.get(n - 1)) + shift;
+
+                    for (w = startW; w <= endW; w++) {
+                        var sim = new DynamoPerformer(n, w, r > n ? n : r, p, c);
+                        sim.readAtLatency(true);
+                        sim.simulate(1_000_000, 1);
+
+                        tempW.add(w);
+                        tempAoI.add(sim.getAvgAOI());
+                    }
+                    print("n = " + n);
+
+                    Object min = Collections.min(tempAoI, Comparator.comparingDouble(o -> ((Number) o).doubleValue()));
+                    int idx = tempAoI.indexOf(min);
+
+                    AoIopt.add(min);
+                    Wopt.add(tempW.get(idx));
+                    valuesN.add(n);
+                }
+
+
+                CSVHandler.createCSV("n_values", valuesN);
+                CSVHandler.createCSV("AoI_opt_T", AoIopt_theor);
+                CSVHandler.createCSV("AoI_opt", AoIopt);
+                CSVHandler.createCSV("w_opt_T", Wopt_theor);
+                CSVHandler.createCSV("w_opt", Wopt);
+
+                FigureSettings settings = new FigureSettings(2);
+                settings.setTitle("");
+                settings.setAxisX("n, узлов");
+                settings.setAxisY("Оптимальный размер кворума записи w, узлов");
+                settings.addGraphicParameters("Оценка сверху", "g", "-", "+", 5);
+                settings.addGraphicParameters("Моделирование", "b", "-", "x", 5);
+                settings.saveJSON();
+
+                LinearFigure.plot("n_values", "w_opt_T", "w_opt");
+
+
+                FigureSettings settings2 = new FigureSettings(2);
+                settings2.setTitle("");
+                settings2.setAxisX("n, узлов");
+                settings2.setAxisY("Средний возраст информации при оптимальном w, узлов");
+                settings2.addGraphicParameters("Оценка сверху", "g", "-", "+", 5);
+                settings2.addGraphicParameters("Моделирование", "b", "-", "x", 5);
+                settings2.saveJSON();
+
+                LinearFigure.plot("n_values", "AoI_opt_T", "AoI_opt");
             }
         }
     }

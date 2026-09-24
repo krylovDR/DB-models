@@ -65,11 +65,12 @@ public class MainDynamo {
 
             AoI_NO_VP,          // рассчёт среднего возраста, где исключена избыточность обновлений (число записей нового обновления <w)
 
-            Wopt_N              // график оптимального размера кворума в зависимости от общего числа узлов в системе и
+            Wopt_N,             // график оптимального размера кворума в зависимости от общего числа узлов в системе и
                                 // график AoI при оптимальном кворуме в зависимсоти от общего числа узлов в системе
+            Wopt_N_graphics     // то же самое, что и Wopt_N, но без рассчётов, только построение графиков
     }
 
-    public static final Mode mode = Mode.Wopt_N;
+    public static final Mode mode = Mode.Wopt_N_graphics;
     
     public static void main(String[] args) throws IOException {
         int n = 100;                // количество узлов в системе
@@ -732,7 +733,7 @@ public class MainDynamo {
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
 
                 // параметры системы
-                n = 100;
+                n = 250;
                 r = 20;
                 p = 0.01;
                 c = 100;
@@ -1151,6 +1152,33 @@ public class MainDynamo {
                 settings2.setAxisY("Средний возраст информации при оптимальном w, узлов");
                 settings2.addGraphicParameters("Оценка сверху", "g", "-", "+", 5);
                 settings2.addGraphicParameters("Моделирование", "b", "-", "x", 5);
+                settings2.saveJSON();
+
+                LinearFigure.plot("n_values", "AoI_opt_T", "AoI_opt");
+            }
+
+
+            /**
+             * Wopt_N, но только построение графиков, без расчётов
+             */
+            case Wopt_N_graphics -> {
+                FigureSettings settings = new FigureSettings(2);
+                settings.setTitle("");
+                settings.setAxisX("n, узлов");
+                settings.setAxisY("Оптимальный размер кворума записи w, узлов");
+                settings.addGraphicParameters("Оценка сверху", "g", "-", "+", 0);
+                settings.addGraphicParameters("Моделирование", "b", "-", "x", 0);
+                settings.saveJSON();
+
+                LinearFigure.plot("n_values", "w_opt_T", "w_opt");
+
+
+                FigureSettings settings2 = new FigureSettings(2);
+                settings2.setTitle("");
+                settings2.setAxisX("n, узлов");
+                settings2.setAxisY("Средний возраст информации при оптимальном w, узлов");
+                settings2.addGraphicParameters("Оценка сверху", "g", "-", "+", 0);
+                settings2.addGraphicParameters("Моделирование", "b", "-", "x", 0);
                 settings2.saveJSON();
 
                 LinearFigure.plot("n_values", "AoI_opt_T", "AoI_opt");

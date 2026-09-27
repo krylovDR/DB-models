@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class LinearFigure {
-    public static final String PATH = "results/";
+    public static final String PATH = "results\\";
 
     /**
      * Метод построения графиков.
@@ -15,7 +15,7 @@ public class LinearFigure {
         try {
             String[] commands = new String[files.length + 2];
             commands[0] = "python";
-            commands[1] = "src\\\\graphics\\\\GraphicCreator.py";
+            commands[1] = "src\\graphics\\GraphicCreator.py";
 
             for (int i = 0; i < files.length; i++) {
                 commands[i + 2] = PATH + files[i] + ".csv";

@@ -67,10 +67,14 @@ public class MainDynamo {
 
             Wopt_N,             // график оптимального размера кворума в зависимости от общего числа узлов в системе и
                                 // график AoI при оптимальном кворуме в зависимсоти от общего числа узлов в системе
-            Wopt_N_graphics     // то же самое, что и Wopt_N, но без рассчётов, только построение графиков
+            Wopt_N_graphics,    // то же самое, что и Wopt_N, но без рассчётов, только построение графиков
+
+            FIG8_FIG9,          // построение графиков для статьи Рис.8 и Рис.9 по готовым данным
+
+            FAST_TEST           // режим запуска быстрого кода для теста, код режима пишется каждый раз новый
     }
 
-    public static final Mode mode = Mode.Wopt_N_graphics;
+    public static final Mode mode = Mode.FIG8_FIG9;
     
     public static void main(String[] args) throws IOException {
         int n = 100;                // количество узлов в системе
@@ -733,8 +737,8 @@ public class MainDynamo {
                 List<Object> valuesAoI = new LinkedList<>();        // для построения графика AoI, ось Y
 
                 // параметры системы
-                n = 250;
-                r = 20;
+                n = 300;
+                r = 10;
                 p = 0.01;
                 c = 100;
 
@@ -1059,7 +1063,10 @@ public class MainDynamo {
             case Wopt_N -> {
 
                 // параметры системы
-                int maxN = 300;
+                int startN = 180;       // не менее 1
+                int maxN = 200;
+                int startW_py = 1;      // не менее 1
+                int maxW_py = 50;
                 r = 20;
                 p = 0.01;
                 c = 100;
@@ -1067,7 +1074,10 @@ public class MainDynamo {
                 int shift = 3;  // размер интервала рассчёта относительно Wopt
 
                 // запуск скрипта для рассчёта теоретических значений
-                ScriptHandler.runWopt(Integer.toString(maxN),
+                ScriptHandler.runWopt(Integer.toString(startN),
+                                      Integer.toString(maxN),
+                                      Integer.toString(startW_py),
+                                      Integer.toString(maxW_py),
                                       Integer.toString(r),
                                       Double.toString(p),
                                       Integer.toString(c));
@@ -1087,19 +1097,23 @@ public class MainDynamo {
                 List<Object> AoIopt = new LinkedList<>();           // для построения графика AoI_opt, ось Y
 
 
-                // частный случай (первый элемент списков)
-                Wopt.add(1);
-                valuesN.add(1);
+                if (startN == 1) {
+                    // частный случай (первый элемент списков)
+                    Wopt.add(1);
+                    valuesN.add(1);
 
-                var firstSim = new DynamoPerformer(1, 1, 1, p, c);
-                firstSim.readAtLatency(true);
-                firstSim.simulate(1_000_000, 1);
+                    var firstSim = new DynamoPerformer(1, 1, 1, p, c);
+                    firstSim.readAtLatency(true);
+                    firstSim.simulate(200_000, 1);
 
-                AoIopt.add(firstSim.getAvgAOI());
+                    AoIopt.add(firstSim.getAvgAOI());
+
+                    startN++;
+                }
                 
 
                 // рассчёт моделированием
-                for (n = 2; n <= maxN; n++) {
+                for (n = startN; n <= maxN; n++) {
                     List<Object> tempAoI = new LinkedList<>();
                     List<Object> tempW = new LinkedList<>();
 
@@ -1107,10 +1121,10 @@ public class MainDynamo {
                     int startW = Integer.parseInt((String)Wopt_theor.get(n - 1)) - shift < 1 ? 1 :
                         Integer.parseInt((String)Wopt_theor.get(n - 1)) - shift;
 
-                    int endW = Integer.parseInt((String)Wopt_theor.get(n - 1)) + shift > n ? n :
+                    int maxW = Integer.parseInt((String)Wopt_theor.get(n - 1)) + shift > n ? n :
                         Integer.parseInt((String)Wopt_theor.get(n - 1)) + shift;
 
-                    for (w = startW; w <= endW; w++) {
+                    for (w = startW; w <= (maxW < n ? maxW : n); w++) {
                         var sim = new DynamoPerformer(n, w, r > n ? n : r, p, c);
                         sim.readAtLatency(true);
                         sim.simulate(1_000_000, 1);
@@ -1157,7 +1171,6 @@ public class MainDynamo {
                 LinearFigure.plot("n_values", "AoI_opt_T", "AoI_opt");
             }
 
-
             /**
              * Wopt_N, но только построение графиков, без расчётов
              */
@@ -1183,6 +1196,54 @@ public class MainDynamo {
 
                 LinearFigure.plot("n_values", "AoI_opt_T", "AoI_opt");
             }
+
+            /**
+             * Построение графиков для статьи Рис.8 и Рис.9 по готовым данным
+             */
+            case FIG8_FIG9 -> {
+
+                FigureSettings settings = new FigureSettings(3);
+                settings.setTitle("");
+                settings.setAxisX("n, узлов");
+                settings.setAxisY("Оптимальный размер кворума записи w, узлов");
+                settings.addGraphicParameters("Решение оптимизационной задачи (10) при r=20", "b", "-", "+", 0);
+                settings.addGraphicParameters("Решение оптимизационной задачи (11), при r=20", "g", "-", "x", 0);
+                settings.addGraphicParameters("Решение оптимизационной задачи (11), при r=10", "r", "-", "x", 0);
+                
+                settings.saveJSON();
+
+                LinearFigure.plot("Fig8_Fig9\\n_values",
+                                            "Fig8_Fig9\\Wopt_R20",
+                                            "Fig8_Fig9\\Wopt_R20_T(old)",
+                                            "Fig8_Fig9\\Wopt_R10_T");
+
+
+                FigureSettings settings2 = new FigureSettings(2);
+                settings2.setTitle("");
+                settings2.setAxisX("n, узлов");
+                settings2.setAxisY("Средний возраст информации при оптимальном w, узлов");
+                settings2.addGraphicParameters("Решение оптимизационной задачи (11), при r=20", "g", "-", "x", 0);
+                settings2.addGraphicParameters("Решение оптимизационной задачи (11), при r=10", "r", "-", "x", 0);
+                
+                settings2.saveJSON();
+
+                LinearFigure.plot("Fig8_Fig9\\n_values",
+                                            "Fig8_Fig9\\AoI_R20_T",
+                                            "Fig8_Fig9\\AoI_R10_T");
+
+            }
+
+
+            /**
+             * Режим запуска быстрого кода для теста, код режима пишется каждый раз новый
+             */
+            case FAST_TEST -> {
+                List<Object> Wopt_R20_T = new LinkedList<>(
+                    Files.readAllLines(Paths.get("results\\Wopt_theor.txt"), StandardCharsets.UTF_8));
+                CSVHandler.createCSV("Wopt_R20_T", Wopt_R20_T);
+
+            }
+
         }
     }
 

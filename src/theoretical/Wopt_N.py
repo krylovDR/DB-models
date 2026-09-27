@@ -64,26 +64,46 @@ def aoi_res(p, mu, cur_c):
     return res
 
 
-n_max = int(sys.argv[1])
-r = int(sys.argv[2])
-p_success = float(sys.argv[3])
-c = int(sys.argv[4])
+# n_start = int(sys.argv[1])
+# n_end = int(sys.argv[2])
+# w_start = int(sys.argv[3])
+# w_end = int(sys.argv[4])
+# r = int(sys.argv[5])
+# p_success = float(sys.argv[6])
+# c = int(sys.argv[7])
+
+n_start = 1  # не менее 1
+n_end = 300
+w_start = 1  # не менее 1
+w_end = 50
+r = 20
+p_success = 0.01
+c = 100
+
+if n_start == 1:
+    opt_w = [1]
+    n_values = [1]
+    opt_AoI = [aoi_res(probs(1, 1, r), theory_formula(1, 1, p_success), c)]
+
+    n_start = 2
+else:
+    opt_w = []
+    n_values = []
+    opt_AoI = []
 
 
-opt_w = [1]
-n_values = [1]
-opt_AoI = [aoi_res(probs(1, 1, r), theory_formula(1, 1, p_success), c)]
-
-for n in range(2, n_max + 1):
+for n in range(n_start, n_end + 1):
 
     temp_AoI = []
-    for w in range (1, n):
+    for w in range (w_start, min(w_end + 1, n + 1)):
+        print("n: " + str(n) + "| w: " + str(w))
+        
         p_cur = probs(n, w, r)
         mu = theory_formula(n, w, p_success)
         # mu2 = exp_distribution(n, w, p_success)
         temp_AoI.append(aoi_res(p_cur, mu, c))
+    print()
 
-    print("n = " + str(n))
 
 
     min_val = min(temp_AoI)

@@ -16,15 +16,18 @@ public class ScriptHandler {
      * @param p - вероятность успешной записи обновления
      * @param c - длительность задержки перед следующим обновлением
      */
-    public static void runWopt(String maxN, String r, String p, String c) {
+    public static void runWopt(String startN, String maxN, String startW, String maxW, String r, String p, String c) {
         try {
-            String[] commands = new String[6];
+            String[] commands = new String[9];
             commands[0] = "python";
             commands[1] = "src\\theoretical\\Wopt_N.py";
-            commands[2] = maxN;
-            commands[3] = r;
-            commands[4] = p;
-            commands[5] = c;
+            commands[2] = startN;
+            commands[3] = maxN;
+            commands[4] = startW;
+            commands[5] = maxW;
+            commands[6] = r;
+            commands[7] = p;
+            commands[8] = c;
 
             // создание процесса
             ProcessBuilder processBuilder = new ProcessBuilder(commands);

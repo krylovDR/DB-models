@@ -1221,7 +1221,7 @@ public class MainDynamo {
                 FigureSettings settings2 = new FigureSettings(2);
                 settings2.setTitle("");
                 settings2.setAxisX("n, узлов");
-                settings2.setAxisY("Средний возраст информации при оптимальном w, узлов");
+                settings2.setAxisY("Средний возраст информации при оптимальном w, слотов");
                 settings2.addGraphicParameters("Решение оптимизационной задачи (11), при r=20", "g", "-", "x", 0);
                 settings2.addGraphicParameters("Решение оптимизационной задачи (11), при r=10", "r", "-", "x", 0);
                 

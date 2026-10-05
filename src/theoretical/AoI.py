@@ -1,6 +1,7 @@
 # Прога Ульяны. Нужна для построения графиков верхней оценки AoI (вычисляется здесь)
 # и AoI точного (из .csv файла - результат работы моделирующей программы)
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -67,16 +68,21 @@ def aoi_res(p, mu):
 
 
 def main() -> None:
+    mpl.rcParams['pdf.fonttype'] = 42
+    mpl.rcParams['ps.fonttype'] = 42
+    
     res = []
-    res2 = []
+    # res2 = []
     w_val = []
     for w in range(1, 101):
         p_cur = probs(w)
         mu = theory_formula(w)
-        mu2 = exp_distribution(n, w, p_success)
+        # mu2 = exp_distribution(n, w, p_success)
         res.append(aoi_res(p_cur, mu))
-        res2.append(aoi_res(p_cur, mu2))
+        # res2.append(aoi_res(p_cur, mu2))
         w_val.append(w)
+
+        print("w : " + str(w))
 
     df = pd.read_csv("results\\Params[n=100, r=20, p=0.01, c=100].csv", header=None)
     model_001 = df[0].astype(float).to_numpy()

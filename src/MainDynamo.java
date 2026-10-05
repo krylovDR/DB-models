@@ -169,7 +169,7 @@ public class MainDynamo {
                 for (w = 1; w <= n; w++) {
                     var sim = new DynamoPerformer(n, w, r, p, c);
                     sim.readAtLatency(true);
-                    sim.simulate(100_000, 1);
+                    sim.simulate(1_000_000, 1);
 
                     valuesW.add(w);
                     valuesAoI1.add(sim.getAvgAOI());
@@ -182,7 +182,7 @@ public class MainDynamo {
                 for (w = 1; w <= n; w++) {
                     var sim = new DynamoPerformer(n, w, r, p, c);
                     sim.readAtLatency(true);
-                    sim.simulate(100_000, 1);
+                    sim.simulate(1_000_000, 1);
 
                     valuesAoI2.add(sim.getAvgAOI());
                     print("w = " + w + ", avg AoI: " + sim.getAvgAOI());

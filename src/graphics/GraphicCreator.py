@@ -1,3 +1,4 @@
+import matplotlib as mpl
 import matplotlib.pyplot as plt  # type: ignore
 import csv
 import sys
@@ -14,6 +15,9 @@ def readFile(idx : int) -> list:
 
 
 def main() -> None:
+    mpl.rcParams['pdf.fonttype'] = 42
+    mpl.rcParams['ps.fonttype'] = 42
+
     values : list = []  # 1 - id данных оси, 2 - данные
     
     # чтение данных из .csv файлов в динамический список
